@@ -16,12 +16,17 @@ test_that("lav_mice returns correct output", {
   visual ~~ speed
   textual ~~ speed
   '
-  results <- RMediation::lav_mice(model, imputed_data)
-
+  #expect_silent(model <- sem(model, data = hs_short))
+  expect_no_error(results <- RMediation::lav_mice(model, imputed_data))
+  #str(results)
+  #results$est |> dplyr::bind_rows()
+  #lapply(results$fit, summary)
   # Verify the output
   expect_length(results$analyses, imputed_data$m)
   expect_true(all(sapply(results$analyses, function(x) is(x, "lavaan"))))
-
+  expect_true(inherits(results, "semMice"))
+  expect_true(inherits(results, "mira"))
+  expect_true(inherits(results, "lav"))
 
 }
 )

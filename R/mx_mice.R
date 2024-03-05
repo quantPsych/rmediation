@@ -47,8 +47,6 @@
 #' @rdname mx_mice
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
 
-
-
 mx_mice <- function(model, mids, ...) {
   # Ensure 'mids' is a 'mids' object
   if (!inherits(mids, "mids")) {
@@ -66,23 +64,21 @@ mx_mice <- function(model, mids, ...) {
     stop("The mxModel object failed verification.")
   }
 
-  # Extract the complete imputed datasets
-  data_complete <- OpenMx::omxLapply(1:mids$m, function(i) mice::complete(mids, action = i))
+  # Extract complete imputed datasets
+  dat_long <- complete(mids, action = "long")
+  # Split the data into a list of complete datasets
+  data_complete <- dat_long |>  split(~ .imp) |>
+    map(\(x) subset(x, select = -c(.imp, .id)))
 
-  # Fit the OpenMx model to each imputed dataset
-  mx_results <- OpenMx::omxLapply(data_complete, function(data) {
-    # Update the model with the new data
-    mxDataObj <- OpenMx::mxData(data, type = "raw")
-    updatedModel <- OpenMx::mxModel(model, mxDataObj)
-
-    # Fit the model
-    fit <- OpenMx::mxRun(updatedModel)
-    return(fit)
+  mx_results <- data_complete |> purrr::map(\(df) {
+    mxDataObj <- mxData(df, type = "raw")
+    updatedModel <- mxModel(model, mxDataObj)
+    mxRun(updatedModel)
   })
 
   mx_results <- mice::as.mira(mx_results)
   # Add class attribute to the list
-  class(mx_results) <- c("semMice", "mx" ,"mira")
+  class(mx_results) <- c("semMice", "mx" , "mira")
 
   # Return list of OpenMx model fits
   return(mx_results)

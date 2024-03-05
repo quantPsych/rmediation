@@ -37,7 +37,7 @@
 #' }
 #' @export
 #' @import mice
-#' @importFrom lavaan sem
+#' @importFrom lavaan sem parameterEstimates
 #' @importFrom mice mice complete pool as.mira
 #' @importFrom stats update
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
@@ -49,7 +49,6 @@ lav_mice <- function(model, mids, ...) {
   }
 
   # Ensure 'model' is either a character string or a lavaan model object
-
   if (!is_valid_lav_syntax(model, mids$data)) {
     stop("The model is not a valid lavaan model syntax.")
   }
@@ -57,26 +56,24 @@ lav_mice <- function(model, mids, ...) {
   is_lav_object <- inherits(model, "lavaan")
 
   # Extract complete imputed datasets
-  data_complete <-
-    lapply(1:mids$m, function(i) {
-      mice::complete(mids, action = i)
+  dat_long <- complete(mids, action = "long")
+  # Split the data into a list of complete datasets
+  data_complete <- dat_long |>  split(~ .imp) |>
+    map(\(x) subset(x, select = -c(.imp, .id)))
+
+  # Fit the SEM model to each dataset
+  sem_results <-
+    data_complete |> purrr::map(\(df) {
+      lavaan::sem(model, data = df, ...)
     })
 
-  # Fit SEM model to each imputed dataset or update the model with new data
-  sem_results <- lapply(data_complete, function(data) {
-    if (is_lav_object) {
-      # Update the model with new data
-      updated_model <- update(model, data = data)
-      return(updated_model)
-    } else {
-      # Fit the model as a character string
-      return(lavaan::sem(model, data = data, ...))
-    }
-  })
+  #est_lst <- sem_results |> map(\(x) lavaan::parameterEstimates(x))
 
   # Covert it to mice::mira object to be able to use pool function
   sem_results <- mice::as.mira(sem_results)
+
   class(sem_results) <- c("semMice", "lav", "mira")
   # Return list of SEM model fits
+  #return(list(fit=sem_results,est=est_lst))
   return(sem_results)
 }

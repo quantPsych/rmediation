@@ -62,10 +62,12 @@ pool.semMice <- function(object, ...) {
     # and the specific pooling operation needed for lav_mice results
 
     # Extract the fitted models as a list from your mira object
-    fits <- mira_object$analyses
-    # Extract the relevant information from your mira object
-    Q_df <- fits |> purrr::map_dfr(coef)
+    fits <- mira_object[["analyses"]]
+    summary(fits[[1]])
 
+    # Extract the relevant information from your mira object
+    #Q_df <- fits |> purrr::map_df(coef)
+    Q_df <- fits |> purrr::map_df(parameterEstimates) |> subset(select = "estimate")
     # Extract parameter estimates from each imputed dataset
     Q_bar <- Q_df |> colMeans()
 

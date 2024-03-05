@@ -9,7 +9,7 @@ Authors@R: person("Davood", "Tofighi",
         comment= c(ORCID= "0000-0001-8523-7776")
         )
 Depends:
-    R (>= 3.5.0),
+    R (>= 4.1.0),
     base (>= 3.5.0),
     stats (>= 3.5.0)
 Imports:
@@ -23,8 +23,12 @@ Imports:
     MASS (>= 7.3),
     modelr (>= 0.1.8),
     generics (>= 0.0.2),
-    mice (>= 3.8.0)
-Suggests: knitr, rmarkdown
+    mice (>= 3.8.0),
+    purrr (>= 0.3.4)
+Suggests: 
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
 LazyData: true
 Description: We provide functions to compute confidence intervals for a well-defined nonlinear function of the model parameters (e.g., product of k coefficients) in single--level and
     multilevel structural equation models. It also computes a chi-square test statistic for a function of indirect effects. 
@@ -37,3 +41,4 @@ RoxygenNote: 7.3.1
 VignetteBuilder: knitr
 URL: https://github.com/quantPsych/rmediation
 BugReports: https://github.com/quantPsych/rmediation/issues
+Config/testthat/edition: 3

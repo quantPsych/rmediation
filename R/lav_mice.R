@@ -23,10 +23,10 @@
 #' imputed_data <- mice::mice(data_with_missing, m = 3, maxit = 5, seed = 12345, printFlag = FALSE)
 #'
 #' # fit the Holzinger and Swineford (1939) example model
-#' HS_model <- " visual  =~ x1 + x2 + x3
+#' HS_model <- "visual  =~ x1 + x2 + x3
 #'              textual =~ x4 + x5 + x6
 #'              speed   =~ x7 + x8 + x9 "
-#' # Fit the SEM model without running
+#' # Fit the SEM model without running the model
 #' fit_HS <- lavaan::sem(HS_model, data = data_with_missing, do.fit = FALSE)
 #' # Fit the SEM model without pooling to each imputed dataset
 #' fit_list1 <- lav_mice(HS_model, imputed_data)
@@ -38,7 +38,7 @@
 #' @export
 #' @import mice
 #' @importFrom lavaan sem
-#' @importFrom mice mice complete pool
+#' @importFrom mice mice complete pool as.mira
 #' @importFrom stats update
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
 
@@ -50,7 +50,7 @@ lav_mice <- function(model, mids, ...) {
 
   # Ensure 'model' is either a character string or a lavaan model object
 
-  if (is_valid_lav_syntax(model, mids$data)) {
+  if (!is_valid_lav_syntax(model, mids$data)) {
     stop("The model is not a valid lavaan model syntax.")
   }
   # Determine if 'model' is a character string or a lavaan model
@@ -74,6 +74,9 @@ lav_mice <- function(model, mids, ...) {
     }
   })
 
+  # Covert it to mice::mira object to be able to use pool function
+  sem_results <- mice::as.mira(sem_results)
+  class(sem_results) <- c("semMice", "lav", "mira")
   # Return list of SEM model fits
   return(sem_results)
 }

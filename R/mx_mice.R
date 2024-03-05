@@ -43,7 +43,7 @@
 #' }
 #' @import mice
 #' @importFrom OpenMx mxModel mxData mxRun omxLapply imxVerifyModel
-#' @importFrom mice mice complete
+#' @importFrom mice mice complete as.mira
 #' @rdname mx_mice
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
 
@@ -79,6 +79,10 @@ mx_mice <- function(model, mids, ...) {
     fit <- OpenMx::mxRun(updatedModel)
     return(fit)
   })
+
+  mx_results <- mice::as.mira(mx_results)
+  # Add class attribute to the list
+  class(mx_results) <- c("semMice", "mx" ,"mira")
 
   # Return list of OpenMx model fits
   return(mx_results)

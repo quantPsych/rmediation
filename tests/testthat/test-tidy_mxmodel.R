@@ -45,7 +45,7 @@ test_that("tidy.MxModel returns correct structure", {
 
   # Test with confidence intervals
   result_with_ci <- tidy.MxModel(testModel, conf.int = TRUE)
-  expect_true(all(c("ci.lower", "ci.upper") %in% names(result_with_ci)))
+  expect_true(all(c("conf.low", "conf.high") %in% names(result_with_ci)))
 })
 
 test_that("tidy.MxModel handles errors properly", {
@@ -61,8 +61,8 @@ test_that("confidence intervals are calculated correctly", {
   # You would typically check the confidence interval calculations here
   # This may require having known expected values to compare against
   # This is just a placeholder for the logic you would implement
-  expect_true(all(result_with_ci$ci.lower < result_with_ci$estimate))
-  expect_true(all(result_with_ci$ci.upper > result_with_ci$estimate))
+  expect_true(all(result_with_ci$conf.low < result_with_ci$estimate))
+  expect_true(all(result_with_ci$conf.high > result_with_ci$estimate))
 })
 
 # Add more tests as needed to cover other aspects of the function's behavior

@@ -49,8 +49,8 @@ tidy.MxModel <-
       q <- qnorm((1 + conf.level) / 2)
       tidy_df <- tidy_df |>
         dplyr::mutate(
-          ci.lower = estimate - q * std.error,
-          ci.upper = estimate + q * std.error
+          conf.low = estimate - q * std.error,
+          conf.high = estimate + q * std.error
         ) |>
         tibble::as_tibble()
     }

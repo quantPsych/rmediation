@@ -7,18 +7,18 @@
 mx_mice(model, mids, ...)
 }
 \arguments{
-\item{model}{An OpenMx model object.}
+\item{model}{An \link[OpenMx:MxModel-class]{OpenMx::MxModel} model object.}
 
-\item{mids}{A 'mids' object from the 'mice' package.}
+\item{mids}{A \link[mice:mids-class]{mice::mids} object from the \link[mice:mids-class]{mice::mids} package.}
 
-\item{...}{Additional arguments to be passed to 'mxRun'.}
+\item{...}{Additional arguments to be passed to \link[OpenMx:mxRun]{OpenMx::mxRun}.}
 }
 \value{
 A list of OpenMx model fits.
 }
 \description{
-This function fits an OpenMx model to each imputed dataset in a 'mids' object
-from the 'mice' package. The function returns a list of OpenMx model fits.
+This function fits an \link[OpenMx:MxModel-class]{OpenMx::MxModel} model to each imputed dataset in a \link[mice:mids-class]{mice::mids} object
+from the 'mice' package. The function returns a list of \link[OpenMx:MxModel-class]{OpenMx::MxModel} model fits.
 }
 \examples{
 \dontrun{

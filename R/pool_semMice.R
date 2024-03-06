@@ -72,20 +72,19 @@ pooling_function <- function(mira_object, ...) {
 }
 
 #  # Extract the relevant information from your mira object
-#  #Q_df <- fits |> purrr::map_df(coef)
 #  Q_df <-
-#    fits |> purrr::map_df(parameterEstimates) |> subset(select = "estimate")
+    fits |> purrr::map_df(parameterEstimates) |> subset(select = "estimate")
 #  # Extract parameter estimates from each imputed dataset
 #  Q_bar <- Q_df |> colMeans()
 #
 #  # Calculate the between-imputation variance
-#  var_between <- cov(Q_df)
-#  #extract covaraince mayrices as a list and average covaraince matrices
-#  var_within <- fits |> lapply(vcov) |> reduce(`+`) / length(fits)
+#  # var_between <- cov(Q_df)
+#  # extract covaraince mayrices as a list and average covaraince matrices
+#  # var_within <- fits |> lapply(vcov) |> reduce(`+`) / length(fits)
 #
 #  # total varaince according to Rubin's rule
-#  var_total <-
-#    var_within + var_between + (1 + 1 / length(fits)) * var_within
+#  # var_total <-
+#  #   var_within + var_between + (1 + 1 / length(fits)) * var_within
 #
 #  # Extract log-likelihoods and df from each imputed dataset
 #  loglik_df <-

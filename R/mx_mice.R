@@ -1,12 +1,12 @@
 #' Fit OpenMx model to multiply imputed datasets
 #'
 #' @description
-#' This function fits an OpenMx model to each imputed dataset in a 'mids' object
-#' from the 'mice' package. The function returns a list of OpenMx model fits.
+#' This function fits an [OpenMx::MxModel] model to each imputed dataset in a [mice::mids] object
+#' from the 'mice' package. The function returns a list of [OpenMx::MxModel] model fits.
 #'
-#' @param model An OpenMx model object.
-#' @param mids A 'mids' object from the 'mice' package.
-#' @param ... Additional arguments to be passed to 'mxRun'.
+#' @param model An [OpenMx::MxModel] model object.
+#' @param mids A [mice::mids] object from the [mice::mids] package.
+#' @param ... Additional arguments to be passed to [OpenMx::mxRun].
 #' @return A list of OpenMx model fits.
 #' @export
 #' @examples
@@ -66,17 +66,19 @@ mx_mice <- function(model, mids, ...) {
 
   # Extract complete imputed datasets
   dat_long <- complete(mids, action = "long")
-  # Split the data into a list of complete datasets
+  # Split the data into a list of complete datasets and remove the .imp and .id columns from each dataset
+  # This is necessary because OpenMx::mxData() does not accept the .imp and .id columns
+  # The split function requires base R >= 4.1.0
   data_complete <- dat_long |>
-    split(~.imp) |>
-    map(\(x) subset(x, select = -c(.imp, .id)))
-
+    base::split(~.imp) |>
+    purrr::map(\(x) dplyr::select(x, -c(".imp", ".id")))
+  # Fit the model to each imputed dataset
   mx_results <- data_complete |> purrr::map(\(df) {
-    mxDataObj <- mxData(df, type = "raw")
-    updatedModel <- mxModel(model, mxDataObj)
-    mxRun(updatedModel)
+    mxDataObj <- OpenMx::mxData(df, type = "raw")
+    updatedModel <- OpenMx::mxModel(model, mxDataObj)
+    OpenMx::mxRun(updatedModel)
   })
-
+  # Convert the list of OpenMx model fits to a mira object
   mx_results <- mice::as.mira(mx_results)
   # Add class attribute to the list
   class(mx_results) <- c("semMice", "mx", "mira")

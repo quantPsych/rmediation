@@ -43,8 +43,7 @@ fit_HS <- lavaan::sem(HS_model, data = data_with_missing, do.fit = FALSE)
 # Fit the SEM model without pooling to each imputed dataset
 fit_list <- lav_mice(HS_model, imputed_data)
 pooled_fit <- pool(fit_list)
-
-  }
+}
 
 }
 \seealso{

@@ -1,11 +1,11 @@
 #' Fit SEM Model to Each Dataset in a MIDS Object Without Pooling
 #'
-#' Fits a SEM model to each dataset in a `mids` object without pooling the results.
+#' Fits a SEM model to each dataset in a [mice::mids] object without pooling the results.
 #' This function is an extension for the [lavaan::sem()] function to handle [mice::mids] objects from the [mice] package.
 #' It allows for both a SEM model syntax as a character string or a pre-fitted [lavaan] model object.
 #'
 #' @param model Either a character string representing the SEM model to be fitted or a pre-fitted [lavaan] model object.
-#' @param mids A `mids` object from the [mice] package.
+#' @param mids A [mice::mids] object from the [mice] package.
 #' @param ... Additional arguments to be passed to [lavaan::sem()].
 #' @return A list of [lavaan] model fits, one for each imputed dataset.
 #' @examples
@@ -40,6 +40,7 @@
 #' @importFrom lavaan sem parameterEstimates
 #' @importFrom mice mice complete pool as.mira
 #' @importFrom stats update
+#' @importFrom dplyr bind_rows select
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
 
 lav_mice <- function(model, mids, ...) {
@@ -49,19 +50,19 @@ lav_mice <- function(model, mids, ...) {
   }
 
   # Ensure 'model' is either a character string or a lavaan model object
-  if (!is_valid_lav_syntax(model, mids$data)) {
+  if (!RMediation::is_valid_lav_syntax(model, mids$data)) {
     stop("The model is not a valid lavaan model syntax.")
   }
   # Determine if 'model' is a character string or a lavaan model
   is_lav_object <- inherits(model, "lavaan")
 
   # Extract complete imputed datasets
-  dat_long <- complete(mids, action = "long")
+  dat_long <- mice::complete(mids, action = "long")
   # Split the data into a list of complete datasets
   # The following code only works with R 4.1.0 and above
   data_complete <- dat_long |>
-    split(~.imp) |>
-    map(\(x) subset(x, select = -c(.imp, .id)))
+    base::split(~.imp) |>
+    purrr::map(\(x) dplyr::select(x, -c(".imp", ".id")))
 
   # Fit the SEM model to each dataset
   sem_results <-
@@ -74,6 +75,5 @@ lav_mice <- function(model, mids, ...) {
 
   class(sem_results) <- c("semMice", "lav", "mira")
   # Return list of SEM model fits
-  # return(list(fit=sem_results,est=est_lst))
   return(sem_results)
 }

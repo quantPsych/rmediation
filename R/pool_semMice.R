@@ -27,8 +27,7 @@
 #' # Fit the SEM model without pooling to each imputed dataset
 #' fit_list <- lav_mice(HS_model, imputed_data)
 #' pooled_fit <- pool(fit_list)
-#'
-#'   }
+#' }
 #'
 #' @export
 #' @import purrr dplyr mice
@@ -44,14 +43,13 @@
 # Define the new S3 method for objects of class 'mira'
 pool.semMice <- function(object, ...) {
   # Check the specific type of 'mira' object (mx_mice or lav_mice results)
-  if (inherits(object, "semMice")  && inherits(object, "mira")) {
+  if (inherits(object, "semMice") && inherits(object, "mira")) {
     # Handle pooling for mx_mice results
     # This will require extracting relevant information from your mira object
     # and performing the pooling operation specific to mx_mice results
     pooled_results <- pooling_function(object)
     return(pooled_results)
-  }
-  else {
+  } else {
     stop("Unsupported mira/semMice object type for pooling.")
   }
 }
@@ -64,11 +62,13 @@ pooling_function <- function(mira_object, ...) {
   # Extract the fitted models as a list from your mira object
   fits <- mira_object$analyses
 
-  if (length(fits) == 0)
+  if (length(fits) == 0) {
     stop("No fitted models found in the mira object")
+  }
 
-  if (inherits(fits[[1]], "lavaan"))
+  if (inherits(fits[[1]], "lavaan")) {
     return(lav_extract(fits))
+  }
 }
 
 #  # Extract the relevant information from your mira object
@@ -109,12 +109,13 @@ lav_extract <- function(fit) {
     fit$analyses |>
     purrr::map_dfr(broom.mixed::tidy, conf.int = TRUE, .id = "imp") |>
     dplyr::select(estimate, term, label, std.error) |>
-    dplyr::group_by(term, label)  |>
+    dplyr::group_by(term, label) |>
     dplyr::summarise(
       q_est = mean(estimate),
       bet_var = var(estimate),
-      w_var = sum(std.error ^ 2) / nimp
-    ) |> dplyr::ungroup() |>
+      w_var = sum(std.error^2) / nimp
+    ) |>
+    dplyr::ungroup() |>
     dplyr::mutate(tot_var = w_var + bet_var * (1 + 1 / nimp))
   return(pooled_est)
 }

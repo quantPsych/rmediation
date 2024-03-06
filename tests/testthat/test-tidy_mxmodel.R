@@ -1,6 +1,5 @@
-#library(testthat)
-#library(OpenMx)
-# Assuming tidy.MxModel is available in the context
+# library(testthat)
+# library(OpenMx)
 
 # Mock an MxModel object if necessary
 # Here you would create a simple MxModel or mock one. This step depends on your testing setup
@@ -18,21 +17,23 @@ manifestVars <- paste0("x", 1:9)
 latVar <- c("visual", "textual", "speed")
 
 mx_model <- mxModel("SimpleModel",
-                    type="RAM",
-                    manifestVars = manifestVars,
-                    latentVars = latVar,
-                    mxPath(from="visual", to=c("x1", "x2", "x3"), values=0.5, labels = "loadings"),
-                    mxPath(from="textual", to=c("x4", "x5", "x6")),
-                    mxPath(from="speed", to=c("x7", "x8", "x9")),
-                    mxPath(from=manifestVars, arrows=2),
-                    mxPath(from=latVar, arrows=2, free=FALSE, values=1.0),
-                    mxPath(from="one", to=manifestVars, arrows=1, free=TRUE, values=0.1),
-                    mxPath(from="one", to=latVar, arrows=1, free=FALSE, values=0),
-                    mxData(hs_short, type="raw"),
-                    mxCI(c("A","S","M")) # Add confidence intervals
+  type = "RAM",
+  manifestVars = manifestVars,
+  latentVars = latVar,
+  mxPath(from = "visual", to = c("x1", "x2", "x3"), values = 0.5, labels = "loadings"),
+  mxPath(from = "textual", to = c("x4", "x5", "x6")),
+  mxPath(from = "speed", to = c("x7", "x8", "x9")),
+  mxPath(from = manifestVars, arrows = 2),
+  mxPath(from = latVar, arrows = 2, free = FALSE, values = 1.0),
+  mxPath(from = "one", to = manifestVars, arrows = 1, free = TRUE, values = 0.1),
+  mxPath(from = "one", to = latVar, arrows = 1, free = FALSE, values = 0),
+  mxData(hs_short, type = "raw"),
+  mxCI(c("A", "S", "M")) # Add confidence intervals
 )
 testModel <- OpenMx:::mxRun(mx_model)
-tidy(testModel) |> class() |> print()
+tidy(testModel) |>
+  class() |>
+  print()
 # Begin test definitions
 test_that("tidy.MxModel returns correct structure", {
   # Mock or load a test MxModel object named `testModel`
@@ -67,4 +68,3 @@ test_that("confidence intervals are calculated correctly", {
 # Add more tests as needed to cover other aspects of the function's behavior
 
 # End test definitions
-

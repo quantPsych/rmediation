@@ -17,6 +17,8 @@ test_that("Invalid lavaan model syntax returns FALSE", {
 test_that("Error thrown for non-data.frame data argument", {
   bad_data_input <- "not_a_dataframe"
   good_model <- "visual =~ x1 + x2 + x3"
-  expect_error(is_valid_lav_syntax(good_model, bad_data_input),
-               "'data' must be a data frame.")
+  expect_error(
+    is_valid_lav_syntax(good_model, bad_data_input),
+    "'data' must be a data frame."
+  )
 })

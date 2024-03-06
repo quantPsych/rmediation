@@ -31,23 +31,27 @@ tidy.MxModel <-
     # Extract parameter estimates
     tidy_df <-
       summary(model)$parameters |>
-      dplyr::select(-contains("bound"),-row,-matrix) |>
+      dplyr::select(-contains("bound"), -row, -matrix) |>
       dplyr::rename(
         term = name,
         label = col,
         estimate = Estimate,
         std.error = Std.Error
       ) |>
-      dplyr::mutate(statistic = estimate / std.error,
-                    p.value = 2 * pnorm(abs(statistic), lower.tail = FALSE)) |>
+      dplyr::mutate(
+        statistic = estimate / std.error,
+        p.value = 2 * pnorm(abs(statistic), lower.tail = FALSE)
+      ) |>
       tibble::as_tibble()
 
     # Add confidence intervals if requested
     if (conf.int) {
       q <- qnorm((1 + conf.level) / 2)
       tidy_df <- tidy_df |>
-        dplyr::mutate(ci.lower = estimate - q * std.error,
-                      ci.upper = estimate + q * std.error) |>
+        dplyr::mutate(
+          ci.lower = estimate - q * std.error,
+          ci.upper = estimate + q * std.error
+        ) |>
         tibble::as_tibble()
     }
 

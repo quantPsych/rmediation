@@ -67,7 +67,8 @@ mx_mice <- function(model, mids, ...) {
   # Extract complete imputed datasets
   dat_long <- complete(mids, action = "long")
   # Split the data into a list of complete datasets
-  data_complete <- dat_long |>  split(~ .imp) |>
+  data_complete <- dat_long |>
+    split(~.imp) |>
     map(\(x) subset(x, select = -c(.imp, .id)))
 
   mx_results <- data_complete |> purrr::map(\(df) {
@@ -78,7 +79,7 @@ mx_mice <- function(model, mids, ...) {
 
   mx_results <- mice::as.mira(mx_results)
   # Add class attribute to the list
-  class(mx_results) <- c("semMice", "mx" , "mira")
+  class(mx_results) <- c("semMice", "mx", "mira")
 
   # Return list of OpenMx model fits
   return(mx_results)

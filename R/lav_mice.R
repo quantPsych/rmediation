@@ -59,7 +59,8 @@ lav_mice <- function(model, mids, ...) {
   dat_long <- complete(mids, action = "long")
   # Split the data into a list of complete datasets
   # The following code only works with R 4.1.0 and above
-  data_complete <- dat_long |>  split(~ .imp) |>
+  data_complete <- dat_long |>
+    split(~.imp) |>
     map(\(x) subset(x, select = -c(.imp, .id)))
 
   # Fit the SEM model to each dataset
@@ -73,6 +74,6 @@ lav_mice <- function(model, mids, ...) {
 
   class(sem_results) <- c("semMice", "lav", "mira")
   # Return list of SEM model fits
-  #return(list(fit=sem_results,est=est_lst))
+  # return(list(fit=sem_results,est=est_lst))
   return(sem_results)
 }

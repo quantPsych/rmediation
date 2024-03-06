@@ -12,17 +12,18 @@ test_that("mx_mice returns correct output", {
   latVar <- c("visual", "textual", "speed")
 
   mxModel <- mxModel("SimpleModel",
-                     type="RAM",
-                     manifestVars = manifestVars,
-                     latentVars = latVar,
-                     mxPath(from="visual", to=c("x1", "x2", "x3")),
-                     mxPath(from="textual", to=c("x4", "x5", "x6")),
-                     mxPath(from="speed", to=c("x7", "x8", "x9")),
-                     mxPath(from=manifestVars, arrows=2),
-                     mxPath(from=latVar, arrows=2, free=FALSE, values=1.0),
-                     mxPath(from="one", to=manifestVars, arrows=1, free=TRUE, values=0.1),
-                     mxPath(from="one", to=latVar, arrows=1, free=FALSE, values=0),
-                     mxData(hs_short, type="raw"))
+    type = "RAM",
+    manifestVars = manifestVars,
+    latentVars = latVar,
+    mxPath(from = "visual", to = c("x1", "x2", "x3")),
+    mxPath(from = "textual", to = c("x4", "x5", "x6")),
+    mxPath(from = "speed", to = c("x7", "x8", "x9")),
+    mxPath(from = manifestVars, arrows = 2),
+    mxPath(from = latVar, arrows = 2, free = FALSE, values = 1.0),
+    mxPath(from = "one", to = manifestVars, arrows = 1, free = TRUE, values = 0.1),
+    mxPath(from = "one", to = latVar, arrows = 1, free = FALSE, values = 0),
+    mxData(hs_short, type = "raw")
+  )
 
   # Call mx_mice
   results <- mx_mice(mxModel, imputed_data)
@@ -30,5 +31,6 @@ test_that("mx_mice returns correct output", {
   # Verify the output
   expect_length(results$analyses, imputed_data$m)
   expect_true(all(sapply(results$analyses, inherits, "MxModel")),
-              info = "All items in the results should be MxModel objects.")
+    info = "All items in the results should be MxModel objects."
+  )
 })

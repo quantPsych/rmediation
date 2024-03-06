@@ -58,6 +58,7 @@ lav_mice <- function(model, mids, ...) {
   # Extract complete imputed datasets
   dat_long <- complete(mids, action = "long")
   # Split the data into a list of complete datasets
+  # The following code only works with R 4.1.0 and above
   data_complete <- dat_long |>  split(~ .imp) |>
     map(\(x) subset(x, select = -c(.imp, .id)))
 
@@ -66,8 +67,6 @@ lav_mice <- function(model, mids, ...) {
     data_complete |> purrr::map(\(df) {
       lavaan::sem(model, data = df, ...)
     })
-
-  #est_lst <- sem_results |> map(\(x) lavaan::parameterEstimates(x))
 
   # Covert it to mice::mira object to be able to use pool function
   sem_results <- mice::as.mira(sem_results)

@@ -54,38 +54,24 @@ pool.semMice <- function(object, ...) {
   }
 }
 
-pooling_function <- function(mira_object, ...) {
+pooling_function <- function(mira_object, conf.int = FALSE, ...) {
   # Custom pooling logic for semMice results
   # Similar to mx_mice, this depends on the structure of your semMice objects
   # and the specific pooling operation needed for lav_mice results
-
+  
   # Extract the fitted models as a list from your mira object
   fits <- mira_object$analyses
-
+  
   if (length(fits) == 0) {
     stop("No fitted models found in the mira object")
   }
-
+  
   if (inherits(fits[[1]], "lavaan")) {
-    return(lav_extract(fits))
+    return(lav_extract(fits, conf.int = conf.int))
   }
 }
+# fits |> purrr::map_df(parameterEstimates) |> subset(select = "estimate")
 
-#  # Extract the relevant information from your mira object
-#  Q_df <-
-    fits |> purrr::map_df(parameterEstimates) |> subset(select = "estimate")
-#  # Extract parameter estimates from each imputed dataset
-#  Q_bar <- Q_df |> colMeans()
-#
-#  # Calculate the between-imputation variance
-#  # var_between <- cov(Q_df)
-#  # extract covaraince mayrices as a list and average covaraince matrices
-#  # var_within <- fits |> lapply(vcov) |> reduce(`+`) / length(fits)
-#
-#  # total varaince according to Rubin's rule
-#  # var_total <-
-#  #   var_within + var_between + (1 + 1 / length(fits)) * var_within
-#
 #  # Extract log-likelihoods and df from each imputed dataset
 #  loglik_df <-
 #    fits |> purrr::map(logLik) |> purrr::map_dfr(tidy) |> subset(select = "estimate")
@@ -99,22 +85,25 @@ pooling_function <- function(mira_object, ...) {
 #  ))
 # }
 
-lav_extract <- function(fit) {
+
+lav_extract <- function(fit, conf.int = conf.int) {
   # Extract the relevant information from a lavaan object
   # This function should be customized based on the structure of your lavaan objects
   # and the specific information you need to extract for pooling
-
-  pooled_est <-
-    fit$analyses |>
-    purrr::map_dfr(broom.mixed::tidy, conf.int = TRUE, .id = "imp") |>
-    dplyr::select(estimate, term, label, std.error) |>
-    dplyr::group_by(term, label) |>
+  
+  nimp <- length(fit)
+  res_list <-
+    fit |> purrr::map_dfr(broom::tidy, conf.int = conf.int, .id = "imp")
+  pooled_est <- res_list |>
+    dplyr::select('term', 'estimate', 'std.error', 'statistic', 'p.value') |>
+    dplyr::group_by('term') |>
     dplyr::summarise(
       q_est = mean(estimate),
       bet_var = var(estimate),
-      w_var = sum(std.error^2) / nimp
+      w_var = sum(std.error ^ 2) / nimp
     ) |>
-    dplyr::ungroup() |>
+    ungroup() |>
     dplyr::mutate(tot_var = w_var + bet_var * (1 + 1 / nimp))
+  
   return(pooled_est)
 }

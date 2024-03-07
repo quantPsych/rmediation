@@ -26,7 +26,8 @@ Imports:
     mice (>= 3.8.0),
     purrr (>= 0.3.4),
     dplyr (>= 0.8.3),
-    tibble (>= 2.1.3)
+    tibble (>= 2.1.3),
+    broom (>= 0.6.3)
 Suggests: 
     knitr,
     rmarkdown,

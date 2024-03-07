@@ -23,6 +23,27 @@ standard errors, and optionally confidence intervals.
 Extracts parameter estimates from an OpenMx model and formats them into a tidy dataframe.
 }
 \examples{
-# Assuming `MxModel` is an already fitted OpenMx model:
-tidy_openmx(mxModel)
+\dontrun{
+# Load Holzinger and Swineford (1939) dataset
+data("HolzingerSwineford1939", package = "lavaan")
+# Simple SEM model specification with OpenMx
+manifestVars <- paste0("x", 1:9)
+latVar <- c("visual", "textual", "speed")
+model <- mxModel("Simple SEM",
+  type = "RAM",
+  manifestVars = manifestVars,
+  latentVars = latVar,
+  mxPath(from = "visual", to = c("x1", "x2", "x3")),
+  mxPath(from = "textual", to = c("x4", "x5", "x6")),
+  mxPath(from = "speed", to = c("x7", "x8", "x9")),
+  mxPath(from = manifestVars, arrows = 2),
+  mxPath(from = latVar, arrows = 2, free = FALSE, values = 1.0),
+  mxPath(from = "one", to = manifestVars, arrows = 1, free = TRUE, values = 1.0),
+  mxPath(from = "one", to = latVar, arrows = 1, free = FALSE, values = 0),
+  mxData(HolzingerSwineford1939, type = "raw")
+)
+# Fit the model
+fit0<- mxRun(model)
+RMediation::tidy(fit0)
+}
 }

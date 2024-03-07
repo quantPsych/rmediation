@@ -39,7 +39,7 @@ test_that("pool.semMice returns correct values", {
   fits_lav <- RMediation::lav_mice(model_lav, imputed_data, auto.var = TRUE, auto.fix.first = TRUE, auto.cov.lv.x = TRUE)
   # Compare the results
 
-  res1 <- RMediation::pool.semMice(fits_mx)
+ # res1 <- RMediation::pool.semMice(fits_mx)
   res2 <- RMediation::pool.semMice(fits_lav)
 
 

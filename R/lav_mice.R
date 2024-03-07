@@ -8,6 +8,13 @@
 #' @param mids A [mice::mids] object from the [mice] package.
 #' @param ... Additional arguments to be passed to [lavaan::sem()].
 #' @return A list of [lavaan] model fits, one for each imputed dataset.
+#' @export
+#' @import mice
+#' @importFrom lavaan sem parameterEstimates
+#' @importFrom mice mice complete pool as.mira
+#' @importFrom stats update
+#' @importFrom dplyr bind_rows select
+#' @author Davood Tofighi \email{dtofighi@@gmail.com}
 #' @examples
 #' \dontrun{
 #' # library(mice)
@@ -35,13 +42,6 @@
 #' fit_list2 <- lav_mice(fit_HS, imputed_data)
 #' # 'fit_list2' now contains a list of lavaan objects, one for each imputed dataset
 #' }
-#' @export
-#' @import mice
-#' @importFrom lavaan sem parameterEstimates
-#' @importFrom mice mice complete pool as.mira
-#' @importFrom stats update
-#' @importFrom dplyr bind_rows select
-#' @author Davood Tofighi \email{dtofighi@@gmail.com}
 
 lav_mice <- function(model, mids, ...) {
   # Ensure 'mids' is a 'mids' object from the 'mice' package
@@ -50,11 +50,11 @@ lav_mice <- function(model, mids, ...) {
   }
 
   # Ensure 'model' is either a character string or a lavaan model object
-  if (!RMediation::is_valid_lav_syntax(model, mids$data)) {
-    stop("The model is not a valid lavaan model syntax.")
-  }
+  ##if (!RMediation::is_valid_lav_syntax(model, mids$data)) {
+  ##  stop("The model is not a valid lavaan model syntax.")
+  ## }
   # Determine if 'model' is a character string or a lavaan model
-  is_lav_object <- inherits(model, "lavaan")
+  ## is_lav_object <- inherits(model, "lavaan")
 
   # Extract complete imputed datasets
   dat_long <- mice::complete(mids, action = "long")

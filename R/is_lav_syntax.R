@@ -46,7 +46,12 @@ is_lav_syntax <- function(model, data = NULL) {
       TRUE # Return TRUE if parsing and fitting succeed
     },
     error = function(e) {
+      message(e)
       FALSE # Return FALSE if an error occurs
+    },
+    warning = function(w) {
+      message(w)
+      FALSE # Return FALSE if a warning occurs
     }
   )
 }

@@ -72,4 +72,3 @@ Tofighi, D. (2020). Bootstrap Model-Based Constrained Optimization Tests of Indi
 ## License
 
 `RMediation` is licensed under the [GPL-3.0](https://choosealicense.com/licenses/gpl-3.0/).
-See the LICENSE file for details.

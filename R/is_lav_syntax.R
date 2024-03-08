@@ -8,7 +8,7 @@
 #' @return A logical value indicating whether the model syntax is valid.
 #' @name is_lav_syntax
 #' @aliases is_lav_syntax
-#' @rdname is_lav_syntax is_syntax_valid
+#' @rdname is_lav_syntax
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
 #' @importFrom OpenMx mxModel mxData mxRun omxLapply imxVerifyModel
 #' @importFrom mice mice complete

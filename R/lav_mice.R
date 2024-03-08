@@ -36,11 +36,8 @@
 #' # Fit the SEM model without running the model
 #' fit_HS <- lavaan::sem(HS_model, data = data_with_missing, do.fit = FALSE)
 #' # Fit the SEM model without pooling to each imputed dataset
-#' fit_list1 <- lav_mice(HS_model, imputed_data)
-#' # 'fit_list1' now contains a list of lavaan objects, one for each imputed dataset
-#' # Fit the SEM model without pooling to each imputed dataset using a pre-fitted model object
-#' fit_list2 <- lav_mice(fit_HS, imputed_data)
-#' # 'fit_list2' now contains a list of lavaan objects, one for each imputed dataset
+#' fit_list <- sem_mice(HS_model, imputed_data)
+#' # 'fit_list' now contains a list of lavaan objects, one for each imputed dataset
 #' }
 lav_mice <- function(model, mids, ...) {
   # Ensure 'mids' is a 'mids' object from the 'mice' package

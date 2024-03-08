@@ -6,9 +6,9 @@
 #' @param model A character string representing the lavaan model to be fitted.
 #' @param data A data frame containing the observed variables.
 #' @return A logical value indicating whether the model syntax is valid.
-#' @name is_valid_lav_syntax
-#' @aliases valid_lav_syntax is_valid_lav_syntax
-#' @rdname is_valid_lav_syntax
+#' @name is_lav_syntax
+#' @aliases is_lav_syntax
+#' @rdname is_lav_syntax
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
 #' @importFrom OpenMx mxModel mxData mxRun omxLapply imxVerifyModel
 #' @importFrom mice mice complete
@@ -25,7 +25,7 @@
 #' textual ~ speed"
 #' is_valid_lav_syntax(good_model, HolzingerSwineford1939)
 # Function to check if model syntax is valid
-is_valid_lav_syntax <- function(model, data = NULL) {
+is_lav_syntax <- function(model, data = NULL) {
   # Ensure data is a data frame and is not NULL
   if (!is.null(data) && !is.data.frame(data)) {
     stop("'data' must be a data frame.")

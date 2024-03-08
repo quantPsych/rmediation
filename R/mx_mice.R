@@ -64,12 +64,8 @@ mx_mice <- function(model, mids, ...) {
   }
 
   # Extract complete imputed datasets
-  dat_long <- complete(mids, action = "long")
-  # Split the data into a list of complete datasets and remove the .imp and .id columns from each dataset.
-  # This is necessary because OpenMx::mxData() does not accept the .imp and .id columns The split function requires base R >= 4.1.0
-  data_complete <- dat_long |>
-    base::split(~.imp) |>
-    purrr::map(\(x) dplyr::select(x, -c(".imp", ".id")))
+  data_complete <- mice::complete(mids, action = "all")
+  
   # Fit the model to each imputed dataset
   mx_results <- data_complete |> purrr::map(\(df) {
     mxDataObj <- OpenMx::mxData(df, type = "raw")
@@ -79,8 +75,7 @@ mx_mice <- function(model, mids, ...) {
   # Convert the list of OpenMx model fits to a mira object
   mx_results <- mice::as.mira(mx_results)
   # Add class attribute to the list
-  class(mx_results) <- c("semMice", "mx", "mira")
-
+  class(mx_results) <- c("semlist", "lav", "list", "mira")
   # Return list of OpenMx model fits
   return(mx_results)
 }

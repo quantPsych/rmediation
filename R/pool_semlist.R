@@ -36,23 +36,21 @@
 #' @importFrom mice pool mice complete
 #' @importFrom rlang .data
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
-#' @aliases pool.semMice pool_semMice
-#' @rdname pool_semMice
-#' @name pool.semMice
+#' @aliases pool.semlist
+#' @rdname pool_semlist
+#' @name pool.semlist
 #' @seealso \code{\link{pool}}
 
 # Define the new S3 method for objects of class 'mira'
-pool.semMice <- function(x, ...) {
+pool.semlist <- function(x, ...) {
   # Check the specific type of 'mira' object (mx_mice or lav_mice results)
-  if (inherits(x, "semMice") && inherits(x, "mira")) {
+  if (inherits(x, "semlist") && inherits(x, "mira"))
     # Handle pooling for mx_mice results
     # This will require extracting relevant information from your mira object
     # and performing the pooling operation specific to mx_mice results
-    pooled_results <- pooling_function(x)
-    return(pooled_results)
-  } else {
-    stop("Unsupported mira/semMice object type for pooling.")
-  }
+    pooling_function(x)
+    else
+      stop("Unsupported mira/semMice object type for pooling.")
 }
 
 pooling_function <- function(mira_object, conf.int = FALSE, ...) {

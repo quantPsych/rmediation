@@ -56,23 +56,13 @@ lav_mice <- function(model, mids, ...) {
   ## is_lav_object <- inherits(model, "lavaan")
 
   # Extract complete imputed datasets
-  dat_long <- mice::complete(mids, action = "long")
-  # Split the data into a list of complete datasets
-  # The following code only works with R 4.1.0 and above
-  data_complete <- dat_long |>
-    base::split(~.imp) |>
-    purrr::map(\(x) dplyr::select(x, -c(".imp", ".id")))
-
-  # Fit the SEM model to each dataset
+  data_complete <- mice::complete(mids, action = "all")
   sem_results <-
-    data_complete |> purrr::map(\(df) {
-      lavaan::sem(model, data = df, ...)
-    })
-
+    data_complete |> purrr::map(lavaan::sem, model = model, ...)
   # Covert it to mice::mira object to be able to use pool function
   sem_results <- mice::as.mira(sem_results)
 
-  class(sem_results) <- c("semMice", "lav", "mira")
+  class(sem_results) <- c("semlist", "lav", "list", "mira")
   # Return list of SEM model fits
   return(sem_results)
 }

@@ -20,11 +20,11 @@ test_that("lav_mice returns correct output", {
   expect_no_error(results <- RMediation::lav_mice(model, imputed_data))
   fits <- results$analyses
 
-  lavaan::lavInspect(fits[[1]], "coef", add.labels = TRUE) |> print()
-  lavaan::lavInspect(fits[[1]], "vcov", add.labels = TRUE) |> print()
+  expect_no_error(lavaan::lavInspect(fits[[1]], "coef", add.labels = TRUE) )
+  expect_no_error(lavaan::lavInspect(fits[[1]], "vcov", add.labels = TRUE) )
 
   expect_true(all(sapply(results$analyses, function(x) is(x, "lavaan"))))
-  expect_true(inherits(results, "semMice"))
+  expect_true(inherits(results, "list"))
   expect_true(inherits(results, "mira"))
   expect_true(inherits(results, "lav"))
 })

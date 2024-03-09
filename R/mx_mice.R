@@ -54,7 +54,7 @@ mx_mice <- function(model, mids, ...) {
   }
   # Ensure 'mxModel' is an OpenMx model object
   if (!inherits(model, "MxModel")) {
-    stop("'mids' must be an 'MxModel' object from the 'OpenMx' package.")
+    stop("'model' must be an 'MxModel' object from the 'OpenMx' package.")
   }
 
   # Assuming myModel is your mxModel object and imxVerifyModel() is a conceptual verification function
@@ -65,7 +65,7 @@ mx_mice <- function(model, mids, ...) {
 
   # Extract complete imputed datasets
   data_complete <- mice::complete(mids, action = "all")
-  
+
   # Fit the model to each imputed dataset
   mx_results <- data_complete |> purrr::map(\(df) {
     mxDataObj <- OpenMx::mxData(df, type = "raw")

@@ -40,21 +40,21 @@
 #' @importFrom lavaan lavaan sem parameterEstimates
 #' @importFrom OpenMx mxModel mxRun
 #' @importFrom mice complete as.mira
-#' @importFrom dplyr case_when
 #' @export
 #' @rdname sem_mice
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
 
 sem_mice <- function(model, mids, ...) {
-    # Ensure 'mids' is a 'mids' object
-    if (!inherits(mids, "mids")) {
-        stop("'mids' must be a 'mids' object from the 'mice' package.")
-    }
-    # Ensure 'mxModel' is an OpenMx model object
+  # Ensure 'mids' is a 'mids' object
+  if (!inherits(mids, "mids")) {
+    stop("'mids' must be a 'mids' object from the 'mice' package.")
+  }
 
-    dplyr::case_when(
-        inherits(model, "MxModel") ~ mx_mice(model, mids, ...),
-        is_lav_syntax(model, mids$data) ~ lav_mice(model, mids, ...),
-        TRUE ~ stop("The model is not a valid lavaan or OpenMx model syntax.")
-    )
+  if (inherits(model, "MxModel")) {
+    return(mx_mice(model, mids, ...))
+  } else if (is_lav_syntax(model) || inherits(model, "lavaan")) {
+    return(lav_mice(model, mids, ...))
+  } else {
+    stop("The model must be either a 'MxModel' object or a character string representing a lavaan model syntax.")
+  }
 }

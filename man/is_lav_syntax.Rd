@@ -2,15 +2,13 @@
 % Please edit documentation in R/is_lav_syntax.R
 \name{is_lav_syntax}
 \alias{is_lav_syntax}
-\alias{is_sytax_valid}
+\alias{is_lavaan}
 \title{Function to check if lavaan model syntax is valid}
 \usage{
-is_lav_syntax(model, data = NULL)
+is_lav_syntax(model)
 }
 \arguments{
 \item{model}{A character string representing the lavaan model to be fitted.}
-
-\item{data}{A data frame containing the observed variables.}
 }
 \value{
 A logical value indicating whether the model syntax is valid.

@@ -24,7 +24,7 @@ It allows for both a SEM model syntax as a character string or a pre-fitted \lin
 \examples{
 \dontrun{
 # library(mice)
-# library(lavaan)
+library(lavaan)
 # Load Holzinger and Swineford (1939) dataset
 data("HolzingerSwineford1939", package = "lavaan")
 # Introduce missing data

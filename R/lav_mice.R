@@ -18,7 +18,7 @@
 #' @examples
 #' \dontrun{
 #' # library(mice)
-#' # library(lavaan)
+#' library(lavaan)
 #' # Load Holzinger and Swineford (1939) dataset
 #' data("HolzingerSwineford1939", package = "lavaan")
 #' # Introduce missing data

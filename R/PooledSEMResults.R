@@ -16,18 +16,8 @@
 #' @export PooledSEMResults
 setClass(
     "PooledSEMResults",
-    slots = c(
-        term = "character",
-        estimate = "numeric",
-        std.error = "numeric",
-        statistic = "numeric",
-        p.value = "numeric",
-        conf.low = "numeric",
-        conf.high = "numeric",
-        method = "character"
-    )
+    slots = list(results = "data.frame", method = "character")
 )
-
 
 setMethod("initialize", "PooledSEMResults", function(.Object, estimate, std.error, statistic, p.value, conf.low, conf.high, method) {
     .Object@estimate <- estimate

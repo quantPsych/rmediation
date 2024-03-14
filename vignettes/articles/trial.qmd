@@ -106,12 +106,6 @@ extract_lav <- function(fit,
 ```{r}
 object <- sem_results
 
-# Assuming a function to extract fit indices from a lavaan object
-lapply(
-    object@results,
-    extract_lav,
-) # Note: ensure the function names used here also follow snake_case convention
-
-
-
-
+object$results |>
+    extract_lav()
+```

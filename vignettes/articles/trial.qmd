@@ -109,7 +109,7 @@ object <- sem_results
 sem_results$analyses[[1]] |> broom::tidy()
 
 object$results |>
-    purrr::map_dfr(broom::tidy, conf.int = conf.int, .id = "imp")
+    lapply(broom::tidy)
 
 object$results |>
     extract_lav()

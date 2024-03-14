@@ -178,7 +178,7 @@ lav_mice <- function(model, mids, ...) {
   sem_results <-
     data_complete |> purrr::map(lavaan::sem, model = model, ...)
   # Covert it to mice::mira object to be able to use pool function
-  sem_results <- mice::as.mira(sem_results)
+  ## sem_results <- mice::as.mira(sem_results)
   # Return list of SEM model fits
   return(sem_results)
 }
@@ -201,7 +201,7 @@ mx_mice <- function(model, mids, ...) {
     OpenMx::mxRun(updatedModel, ...)
   })
   # Convert the list of OpenMx model fits to a mira object
-  mx_results <- mice::as.mira(mx_results)
+  ## mx_results <- mice::as.mira(mx_results)
   return(mx_results)
 }
 

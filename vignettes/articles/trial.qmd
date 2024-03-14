@@ -1,0 +1,25 @@
+---
+title: "Testing New Fucntions"
+format: 
+  html:
+    fig-width: 8
+    fig-height: 4
+    code-fold: false
+    highlight: tango
+execute: 
+  eval: false
+  message: false
+  error: true
+---
+
+
+```{r}
+library(tidyverse)
+library(kableExtra)
+library(RMediation)
+library(mice)
+library(lavaan)
+library(OpenMx)
+```
+
+

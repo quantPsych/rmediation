@@ -56,10 +56,10 @@ setGeneric(
 #' lapply(res@results, summary)
 #' }
 setMethod("run_sem", "SemImputedData", function(object, model, conf.int = FALSE, conf.level = .95, ...) {
-    # Ensure 'mids' is a 'mids' object from the 'mice' package
-    if (!inherits(object@data, "mids")) {
-      stop("'mids' must be a 'mids' object from the 'mice' package.")
-    }
+  # Ensure 'mids' is a 'mids' object from the 'mice' package
+  if (!inherits(object@data, "mids")) {
+    stop("'mids' must be a 'mids' object from the 'mice' package.")
+  }
   if (object@method == "lavaan") {
     sem_list <- lav_mice(model, object@data, ...)
   } else if (object@method == "OpenMx") {
@@ -74,7 +74,6 @@ setMethod("run_sem", "SemImputedData", function(object, model, conf.int = FALSE,
 })
 
 lav_mice <- function(model, mids, ...) {
-
   # Extract complete imputed datasets
   data_complete <- mice::complete(mids, action = "all")
   sem_results <-

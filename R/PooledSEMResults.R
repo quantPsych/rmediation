@@ -4,23 +4,23 @@
 #' It contains pooled estimates, standard errors, test statistics, p-values, and confidence intervals
 #' for each parameter estimated across multiple imputations.
 #'
-#' @slot estimates numeric Vector of pooled parameter estimates.
-#' @slot stdErrors numeric Vector of pooled standard errors for each parameter estimate.
-#' @slot statistics numeric Vector of pooled test statistics (e.g., z-values, t-values) for each parameter.
-#' @slot pValues numeric Vector of pooled p-values for each parameter's test statistic.
-#' @slot confLow numeric Vector of lower bounds of the confidence intervals for each parameter estimate.
-#' @slot confHigh numeric Vector of upper bounds of the confidence intervals for each parameter estimate.
+#' @slot estimate numeric Vector of pooled parameter estimates.
+#' @slot std_error numeric Vector of pooled standard errors for each parameter estimate.
+#' @slot statistic numeric Vector of pooled test statistics (e.g., z-values, t-values) for each parameter.
+#' @slot p_value numeric Vector of pooled p-values for each parameter's test statistic.
+#' @slot conf_low numeric Vector of lower bounds of the confidence intervals for each parameter estimate.
+#' @slot conf_high numeric Vector of upper bounds of the confidence intervals for each parameter estimate.
 #' @slot method character The method used for SEM analysis ('lavaan' or 'OpenMx').
 #' @export PooledSEMResults
 setClass(
     "PooledSEMResults",
     slots = c(
-        estimates = "numeric",
-        stdErrors = "numeric",
-        statistics = "numeric",
-        pValues = "numeric",
-        confLow = "numeric",
-        confHigh = "numeric",
+        estimate = "numeric",
+        std_error = "numeric",
+        statistic = "numeric",
+        p_value = "numeric",
+        conf_low = "numeric",
+        conf_high = "numeric",
         method = "character"
     )
 )

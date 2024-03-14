@@ -1,6 +1,9 @@
 #' @keywords internal
+#' @importFrom utils globalVariables
 "_PACKAGE"
 
-## usethis namespace: start
-## usethis namespace: end
-NULL
+utils::globalVariables(c(".data"))
+
+#' @importFrom generics tidy
+#' @export
+generics::tidy

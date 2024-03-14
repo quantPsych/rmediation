@@ -11,19 +11,17 @@
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
 #' @importFrom OpenMx mxModel mxData mxRun omxLapply imxVerifyModel
 #' @importFrom mice mice complete
-#' @importFrom lavaan lavaanify 
+#' @importFrom lavaan lavaanify
 #' @export
 #' @examples
 #' bad_model <- "y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + x8 + x9"
-#' data(HolzingerSwineford1939, package = "lavaan")
-#' is_lav_syntax(bad_model, HolzingerSwineford1939)
+#' is_lav_syntax(bad_model)
 #' good_model <- "visual =~ x1 + x2 + x3
 #' textual =~ x4 + x5 + x6
 #' speed =~ x7 + x8 + x9
 #' visual ~ speed
 #' textual ~ speed"
-#' is_lav_syntax(good_model, HolzingerSwineford1939)
-# Function to check if model syntax is valid
+#' is_lav_syntax(good_model)
 is_lav_syntax <- function(model) {
   result <- try(lavaan::lavaanify(model))
   check_syntax <- if (inherits(result, "try-error")) {

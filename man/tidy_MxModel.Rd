@@ -38,7 +38,7 @@ model <- mxModel("Simple SEM",
   mxPath(from = "speed", to = c("x7", "x8", "x9")),
   mxPath(from = manifestVars, arrows = 2),
   mxPath(from = latVar, arrows = 2, free = FALSE, values = 1.0),
-  mxPath(from = "one", to = manifestVars, arrows = 1, free = TRUE, values = 1.0),
+  mxPath(from = "one", to = manifestVars, arrows = 1, free = FALSE, values = 0),
   mxPath(from = "one", to = latVar, arrows = 1, free = FALSE, values = 0),
   mxData(HolzingerSwineford1939, type = "raw")
 )

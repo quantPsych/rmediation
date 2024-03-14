@@ -24,7 +24,7 @@
 tidy.logLik <- function(x, ...) {
   # Extract the log-likelihood value and the degrees of freedom
   stopifnot(inherits(x, "logLik"))
-  
+
   logLik_value <- as.numeric(x)
   df <- attr(x, "df")
 

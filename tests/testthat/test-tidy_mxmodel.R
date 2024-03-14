@@ -1,5 +1,5 @@
 # library(testthat)
-# library(OpenMx)
+library(rlang)
 
 # Mock an MxModel object if necessary
 # Here you would create a simple MxModel or mock one. This step depends on your testing setup and whether you want to test with real models or mocked objects.
@@ -24,7 +24,7 @@ mx_model <- mxModel("SimpleModel",
   mxPath(from = "speed", to = c("x7", "x8", "x9")),
   mxPath(from = manifestVars, arrows = 2),
   mxPath(from = latVar, arrows = 2, free = FALSE, values = 1.0),
-  mxPath(from = "one", to = manifestVars, arrows = 1, free = TRUE, values = 0.1),
+  mxPath(from = "one", to = manifestVars, arrows = 1, free = FALSE, values = 0),
   mxPath(from = "one", to = latVar, arrows = 1, free = FALSE, values = 0),
   mxData(hs_short, type = "raw"),
   mxCI(c("A", "S", "M")) # Add confidence intervals

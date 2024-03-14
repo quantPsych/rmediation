@@ -1,0 +1,234 @@
+---
+title: "Designing Classes and Methods"
+format: 
+  html:
+    fig-width: 8
+    fig-height: 4
+    code-fold: false
+    highlight: tango
+execute: 
+  eval: false
+  message: false
+  error: true
+---
+
+```{r}
+#| label: setup
+#| eval: true
+#| message: false
+library(RMediation)
+library(lavaan)
+library(OpenMx)
+library(mice)
+library(umx)
+library(tidySEM)
+```
+
+# Class Definition
+To revise the class structure to incorporate the functions you've already written (`lav_mice`, `mx_mice`, `pool.sem_list`, `sem_mice`), we'll refine the S4 class definitions and methods to align with these specific functionalities. We'll assume `lav_mice` and `mx_mice` are functions for running SEM analysis using `lavaan` and `OpenMx` respectively on multiply imputed datasets, `pool.sem_list` is for pooling the SEM results, and `sem_mice` is a higher-level function that might utilize these underlying functionalities.
+
+### Step 1: Define S4 Classes
+
+Let's start by defining a generic `SemImputedData` class that can hold the imputed data, and a `SemResults` class for the results of SEM analyses.
+
+```{r}
+# Define a class to hold multiply imputed datasets
+setClass(
+  "SemImputedData",
+  slots = list(
+    data = "ANY", # Adjusted to accept any type, will enforce 'mids' in validity check
+    method = "character"
+  )
+)
+
+# Validate the class definition
+setValidity("SemImputedData", function(object) {
+  if (!object@method %in% c("lavaan", "OpenMx")) {
+    return("Method must be either 'lavaan' or 'OpenMx'")
+  }
+  if (!all(sapply(object@data, inherits, "data.frame"))) {
+    return("All elements of 'data' must be data frames")
+  }
+  if (!inherits(object@data, "mids")) {
+    return("Data must be a 'mids' object from the 'mice' package.")
+  }
+  TRUE
+})
+
+setMethod(
+  "initialize", "SemImputedData",
+  function(.Object, data, method = "lavaan") {
+    # Directly assign values to slots
+    .Object@data <- data
+    .Object@method <- method
+    # Validate the object
+    if (!validObject(.Object)) {
+      stop("Invalid SemImputedData object created.")
+    }
+
+    .Object
+  }
+)
+```
+
+```{r}
+setClass("SemResults",
+  slots = list(
+    results = "ANY", # Adjusted to accept any type, will enforce 'list' in validity check
+    method = "character" # Type of SEM model: 'lavaan' or 'OpenMx'
+  )
+)
+
+setValidity("SemResults", function(object) {
+  if (!object@method %in% c("lavaan", "OpenMx")) {
+    return("Method must be either 'lavaan' or 'OpenMx'")
+  }
+  if (!all(sapply(object@data, inherits, "data.frame"))) {
+    return("All elements of 'data' must be data frames")
+  }
+  if (!inherits(object@data, "mids")) {
+    return("Data must be a 'mids' object from the 'mice' package.")
+  }
+
+  if (!all(sapply(object@results, inherits, "lavaan")) ||
+    !all(sapply(object@results, inherits, "MxModel"))) {
+    return("All elements of 'results' must be lists of 'lavaan' or 'MxModel' objects")
+  }
+
+  TRUE
+})
+
+
+
+setMethod(
+  "initialize", "SemResults",
+  function(.Object,
+           results = list(),
+           method = "lavaan") {
+    # Directly assign values to slots
+    .Object@results <- results
+    .Object@method <- method
+    # Validate the object
+    if (!validObject(.Object)) {
+      stop("Invalid SemResults object created.")
+    }
+
+    .Object
+  }
+)
+```
+
+### Step 2: Incorporate Existing Functions into Methods
+
+Let's create methods that wrap your existing functions, adapting them to work with these classes.
+
+#### Constructor for `SemImputedData`
+
+This function initializes a `SemImputedData` object, which stores the multiply imputed datasets and specifies the method to be used (`lavaan` or `OpenMx`).
+
+```{r}
+createSemImputedData <- function(data, method) {
+  if (!method %in% c("lavaan", "OpenMx")) {
+    stop("Method must be either 'lavaan' or 'OpenMx'")
+  }
+  new("SemImputedData", data = data, method = method)
+}
+```
+
+#### Running SEM Analysis
+
+Generic function to perform SEM analysis. This function will decide whether to run `lav_mice` or `mx_mice` based on the `method` slot of `SemImputedData`.
+
+```{r}
+setGeneric("runSemAnalysis", function(semData, model, ...) standardGeneric("runSemAnalysis"))
+
+setMethod("runSemAnalysis", "SemImputedData", function(semData, model, ...) {
+  if (semData@method == "lavaan") {
+    return(lav_mice(model, semData@data, ...))
+  } else if (semData@method == "OpenMx") {
+    return(mx_mice(model, semData@data, ...))
+  } else {
+    stop("Unsupported method")
+  }
+})
+```
+
+### Step 3: Define a Method for Pooling Results
+
+Given the `SemResults` class, we can define a method for `pool.sem_list` or adjust it to work with our `SemResults` class, ensuring we have a method for pooling the results.
+
+```{r}
+setMethod("pool_sem", "SemResults", function(object, ...) {
+  pool.sem_list(object@results, ...)
+})
+```
+
+### Step 4: High-Level SEM Analysis Function
+
+`sem_mice` might be a high-level function that combines creating `SemImputedData`, running the analysis, and possibly pooling results. Here's a conceptual implementation based on the previous steps and classes.
+
+```{r}
+sem_mice <- function(model, data, method, ...) {
+  semData <- createSemImputedData(data, method)
+  semResults <- runSemAnalysis(semData, model, ...)
+  pooledResults <- pool_sem(semResults, ...)
+  return(list(semResults = semResults, pooledResults = pooledResults))
+}
+```
+
+### Summary
+
+This revised approach integrates your existing functions (`lav_mice`, `mx_mice`, `pool.sem_list`) into a structured S4 class framework. The `SemImputedData` class holds the imputed datasets and specifies the SEM method, `SemResults` stores the results, and generic methods (`runSemAnalysis` and `pool`) utilize your functions appropriately based on the object's class and slots. The `sem_mice` function serves as a high-level interface to this process.
+
+# OpenMx Example
+
+```{r}
+#| label: openmx-example
+#| eval: true
+data(HolzingerSwineford1939, package = "lavaan")
+hs_short <- HolzingerSwineford1939[paste0("x", 1:9)]
+hs_short <- mice::ampute(hs_short, prop = 0.1, mech = "MAR")$amp
+
+# Perform multiple imputation
+imputed_data <- mice(hs_short, m = 3, maxit = 5, seed = 12345, print = FALSE)
+
+# Define a simple SEM model using OpenMx
+manifestVars <- paste0("x", 1:9)
+latVar <- c("visual", "textual", "speed")
+
+mx_model <- mxModel("SimpleModel",
+  type = "RAM",
+  manifestVars = manifestVars,
+  latentVars = latVar,
+  mxPath(from = "visual", to = c("x1", "x2", "x3"), values = 0.5, labels = "loadings"),
+  mxPath(from = "textual", to = c("x4", "x5", "x6")),
+  mxPath(from = "speed", to = c("x7", "x8", "x9")),
+  mxPath(from = manifestVars, arrows = 2),
+  mxPath(from = latVar, arrows = 2, free = FALSE, values = 1.0),
+  mxPath(from = "one", to = manifestVars, arrows = 1, free = FALSE, values = 0),
+  mxPath(from = "one", to = latVar, arrows = 1, free = FALSE, values = 0),
+  mxData(hs_short, type = "raw"),
+  mxCI(c("A", "S", "M")) # Add confidence intervals
+)
+
+testModel <- OpenMx:::mxRun(mx_model)
+
+mxCheckIdentification(testModel)$status
+summary(testModel)
+```
+
+```{r}
+#| label: fig-sem_plot
+#| eval: true
+#| fig-cap: "SEM plot"
+plot(testModel, std = F, means = F, digits = 2)
+```
+
+
+```{r}
+#| label: fig-sem_plot2
+#| eval: true
+#| fig-cap: "SEM plot"
+tidySEM::graph_sem(testModel)
+```
+

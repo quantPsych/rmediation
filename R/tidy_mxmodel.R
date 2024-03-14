@@ -10,10 +10,10 @@
 #'         standard errors, and optionally confidence intervals.
 #' @export
 #' @import OpenMx
-#' @importFrom rlang .data
-#' @importFrom dplyr mutate select rename
+#' @importFrom dplyr mutate select rename contains
 #' @importFrom tibble tibble as_tibble
 #' @importFrom stats qnorm pnorm
+#' @importFrom rlang .data
 #' @name tidy.MxModel
 #' @rdname tidy_MxModel
 #' @seealso [OpenMx] [MxModel] [summary.MxModel]
@@ -33,7 +33,7 @@
 #'   mxPath(from = "speed", to = c("x7", "x8", "x9")),
 #'   mxPath(from = manifestVars, arrows = 2),
 #'   mxPath(from = latVar, arrows = 2, free = FALSE, values = 1.0),
-#'   mxPath(from = "one", to = manifestVars, arrows = 1, free = TRUE, values = 1.0),
+#'   mxPath(from = "one", to = manifestVars, arrows = 1, free = FALSE, values = 0),
 #'   mxPath(from = "one", to = latVar, arrows = 1, free = FALSE, values = 0),
 #'   mxData(HolzingerSwineford1939, type = "raw")
 #' )
@@ -55,7 +55,7 @@ tidy.MxModel <-
     # Extract parameter estimates
     tidy_df <-
       summary(x)$parameters |>
-      dplyr::select(-contains("bound"), -.data$row, -.data$matrix) |>
+      dplyr::select(-dplyr::contains("bound"), -.data$row, -.data$matrix) |>
       dplyr::rename(
         term = .data$name,
         label = .data$col,

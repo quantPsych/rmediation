@@ -211,6 +211,8 @@ extract_lav <- function(fit,
 #
 #
 object <- sem_results
+sem_results |> names()
+sem_results |> class()
 
 sem_results$analyses[[1]] |> broom::tidy()
 

@@ -19,18 +19,20 @@ setClass(
     slots = list(results = "data.frame", method = "character")
 )
 
-setMethod("initialize", "PooledSEMResults", function(.Object, estimate, std.error, statistic, p.value, conf.low, conf.high, method) {
-    .Object@estimate <- estimate
-    .Object@std.errorrror <- std.error
-    .Object@statistic <- statistic
-    .Object@p.value <- p.value
-    .Object@conf.low <- conf.low
-    .Object@conf.high <- conf.high
+setMethod("initialize", "PooledSEMResults", function(.Object, results, method) {
+    validColumns <- c("term", "estimate", "std.error", "statistic", "p.value", "conf.low", "conf.high")
+    missingColumns <- setdiff(validColumns, colnames(results))
+    if (length(missingColumns) > 0) {
+        stop("Missing required columns in results data frame: ", paste(missingColumns, collapse = ", "), call. = FALSE)
+    }
+
+    .Object@results <- results
     .Object@method <- method
 
     validObject(.Object)
     return(.Object)
 })
+
 
 #' Validity Check for PooledSEMResults Class
 #'

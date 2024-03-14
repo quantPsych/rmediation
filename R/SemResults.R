@@ -210,8 +210,9 @@ mx_mice <- function(model, mids, ...) {
 ### pool_sem method: Extractor Method
 ### ---------------------------------------------
 
-#' Pool SEM Analysis Results
+#' @title Pool SEM Analysis Results
 #'
+#' @description
 #' A generic function to pool SEM analysis results from multiple datasets or imputations,
 #' offering a unified interface for summarizing findings across different SEM models
 #' or imputations. Supports custom implementations for various result types, including

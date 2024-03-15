@@ -97,6 +97,7 @@ res1@results |>
     group_by(imp) |>
     nest()
 
+
 est_df <- res1@results |>
     purrr::map_dfr(lavaan::coef) |>
     summarise(across(everything(), mean)) |>

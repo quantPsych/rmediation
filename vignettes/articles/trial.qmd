@@ -100,13 +100,16 @@ res1@results |>
 
 est_df <- res1@results |>
     purrr::map_dfr(lavaan::coef) |>
-    summarise(across(everything(), mean)) |>
+    summarise(across(everything(), mean))
+est_df |>
     knitr::kable()
 
 var_b <- res1@results |>
     purrr::map_dfr(lavaan::coef) |>
     summarise(across(everything(), var)) |>
-    mutate(across(everything(), \(x) x * (1 + 1 / length(res1@results)))) |>
+    mutate(across(everything(), \(x) x * (1 + 1 / length(res1@results))))
+
+var_b |>
     knitr::kable()
 
 var_b_cov <- res1@results |>

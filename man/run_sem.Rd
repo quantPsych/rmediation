@@ -14,7 +14,7 @@ run_sem(object, model, conf.int, conf.level, ...)
 
 \item{model}{A character string specifying the SEM model}
 
-\item{conf.int}{A numeric value specifying the confidence interval level. Defaults to FALSE.}
+\item{conf.int}{A logical value specifying the confidence interval level. Defaults to FALSE.}
 
 \item{conf.level}{A numeric value specifying the confidence level. Defaults to 0.95.}
 
@@ -47,11 +47,7 @@ model <- "
  "
 ## Note that the model is specified as a string
 res <- run_sem(sem_data, model)
-lapply(res@results, summary)
 }
-}
-\seealso{
-\linkS4class{SemImputedData}
 }
 \author{
 Davood Tofighi \email{dtofighi@gmail.com}

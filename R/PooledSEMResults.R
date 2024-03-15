@@ -5,7 +5,7 @@
 #' for each parameter estimated across multiple imputations.
 #'
 #' @slot results data.frame A data frame containing the pooled results of the SEM analyses. The column names adhere to tidy conventions and include the following columns:
-#'  - `term`: The name of the parameter being estimated.
+#' - `term`: The name of the parameter being estimated.
 #' - `estimate`: The pooled estimate of the parameter.
 #' - `std.error`: The pooled standard error of the estimate.
 #' - `statistic`: The pooled test statistic (e.g., z-value, t-value).
@@ -13,133 +13,255 @@
 #' - `conf.low`: The lower bound of the confidence interval for the estimate.
 #' - `conf.high`: The upper bound of the confidence interval for the estimate.
 #' @slot method character The method used for SEM analysis ('lavaan' or 'OpenMx').
-#' @export PooledSEMResults
-setClass(
-    "PooledSEMResults",
-    slots = list(results = "data.frame", method = "character")
+#'
+#' @import methods
+#' @importFrom methods setClass setValidity setMethod validObject
+#' @exportClass PooledSEMResults
+#' @name PooledSEMResults
+#' @rdname PooledSEMResults-class
+#' @docType class
+#' @author Davood Tofighi \email{dtofighi@@gmail.com}
+#' @aliases PooledSEMResults PooledSEMResults-class
+setClass("PooledSEMResults",
+  slots = list(results = "data.frame", method = "character")
 )
 
 setMethod("initialize", "PooledSEMResults", function(.Object, results, method) {
-    validColumns <- c("term", "estimate", "std.error", "statistic", "p.value", "conf.low", "conf.high")
-    missingColumns <- setdiff(validColumns, colnames(results))
-    if (length(missingColumns) > 0) {
-        stop("Missing required columns in results data frame: ", paste(missingColumns, collapse = ", "), call. = FALSE)
-    }
+  requiredColumns <- c(
+    "term",
+    "estimate",
+    "std.error",
+    "statistic",
+    "p.value"
+  )
+  # Check for required columns
+  if (!all(requiredColumns %in% colnames(results))) {
+    stop(
+      "The results data frame must contain all required columns: term, estimate, std.error, statistic, p.value."
+    )
+  }
+  .Object@results <- results
+  .Object@method <- method
 
-    .Object@results <- results
-    .Object@method <- method
-
-    validObject(.Object)
-    return(.Object)
+  validObject(.Object)
+  return(.Object)
 })
 
 setValidity("PooledSEMResults", function(object) {
-    messages <- character(0)
+  messages <- character(0)
 
-    # Check if results data frame contains all required columns
-    requiredColumns <- c("term", "estimate", "std.error", "statistic", "p.value", "conf.low", "conf.high")
-    if (!all(requiredColumns %in% colnames(object@results))) {
-        messages <- c(messages, "The results data frame must contain all required columns: term, estimate, std.error, statistic, p.value, conf.low, conf.high.")
-    }
-
-    # Check if method is valid
-    if (!object@method %in% c("lavaan", "OpenMx")) {
-        messages <- c(messages, "Method must be either 'lavaan' or 'OpenMx'.")
-    }
-
-    if (length(messages) == 0) TRUE else messages
-})
-
-
-
-
-setGeneric(
-    "pool_sem",
-    function(object, conf.int, conf.level, ...) standardGeneric("pool_sem")
-)
-
-setMethod("pool_sem", "SemResults", function(object, conf.int = FALSE, conf.level = 0.95, ...) {
-    # Placeholder for pooled result computations
-    # Assume extract_lav and extract_mx functions perform the necessary pooling
-
-    if (object@method == "lavaan") {
-        pooledData <- extract_lav(object, conf.int, conf.level)
-    } else if (object@method == "OpenMx") {
-        pooledData <- extract_mx(object, conf.int, conf.level)
-    } else {
-        stop("Unsupported method specified in SemResults")
-    }
-
-    # Construct a PooledSEMResults object
-    newPooledResults <- new("PooledSEMResults",
-        estimate = pooledData$estimate,
-        std.error = pooledData$std.error,
-        statistic = pooledData$statistic,
-        p.values = pooledData$p.value,
-        conf.low = pooledData$conf.low,
-        conf.high = pooledData$conf.high,
-        method = object@method
+  requiredColumns <-
+    c(
+      "term",
+      "estimate",
+      "std.error",
+      "statistic",
+      "p.value"
     )
 
-    return(newPooledResults)
+  # Check for required columns
+  if (!all(requiredColumns %in% colnames(object@results))) {
+    messages <-
+      c(
+        messages,
+        "The results data frame must contain all required columns: term, estimate, std.error, statistic, p.value."
+      )
+  }
+  # Check for NA values in critical columns
+  if (any(is.na(object@results[, requiredColumns]))) {
+    messages <-
+      c(
+        messages,
+        "The results data frame contains NA values in critical columns."
+      )
+  }
+  # Validate method
+  if (!object@method %in% c("lavaan", "OpenMx")) {
+    messages <-
+      c(messages, "Method must be either 'lavaan' or 'OpenMx'.")
+  }
+  if (length(messages) == 0) {
+    TRUE
+  } else {
+    messages
+  }
 })
 
-## Helper functions for pooling results from lavaan and OpenMx objects
-## These functions should be customized based on the structure of your lavaan and OpenMx objects
-## and the specific information you need to extract for pooling.
 
+### =============================================
+### Methods for the PooledSEMResults Class
+### ============================================
+
+### ---------------------------------------------
+### Method: pool_sem
+### Signature: object = "SemResults"
+### Returns: PooledSEMResults
+### Role: Constructor, Pool results from multiple imputation analyses
+### ---------------------------------------------
+
+#' Pool SEM Analysis Results
+#'
+#' A generic function to pool SEM analysis results from multiple datasets or imputations.
+#'
+#' @description
+#' `pool_sem` pools SEM analysis results, supporting `lavaan` and `OpenMx` models.
+#' It calculates pooled estimates, standard errors, confidence intervals, and more.
+#'
+#' @param object `SemResults` object with SEM analysis results.
+#' @param conf.int Logical; if TRUE, calculates confidence intervals.
+#' @param conf.level Confidence level for the intervals (default is 0.95).
+#' @param ... Additional arguments for extensions.
+#'
+#' @return `PooledSEMResults` object containing pooled SEM analysis results.
+#' @details Refer to method-specific documentation for details on pooling process and assumptions.
+#' @examples
+#' \dontrun{
+#' # Assuming `sem_results` is a `SemResults` object with `lavaan` model fits:
+#' pooled_results <- pool_sem(sem_results, conf.int = TRUE, conf.level = 0.95)
+#' print(pooled_results)
+#' }
+#' @importFrom dplyr mutate select rename contains group_by summarise ungroup
+#' @importFrom purrr map_dfr
+#' @importFrom tibble tibble as_tibble
+#' @importFrom broom tidy
+#' @seealso [lavaan], [OpenMx]
+#' @author Davood Tofighi \email{dtofighi@@gmail.com}
+
+setGeneric(
+  "pool_sem",
+  function(object,
+           conf.int = FALSE,
+           conf.level = 0.95,
+           ...) {
+    standardGeneric("pool_sem")
+  }
+)
+
+#' Pool SEM Results from Multiple Imputations
+#'
+#' This function pools the results of structural equation modeling (SEM) analyses
+#' performed on multiple imputed datasets. It supports pooling for models analyzed
+#' with either the \code{lavaan} or \code{OpenMx} package. The function extracts and pools
+#' relevant statistics (e.g., estimates, standard errors) across all imputations,
+#' considering the specified confidence interval settings.
+#'
+#' @return A \code{data.frame} containing the pooled results of the SEM analyses. The
+#'  column names adhere to tidy conventions and include the following columns:
+#'   - `term`: The name of the parameter being estimated.
+#'   - `estimate`: The pooled estimate of the parameter.
+#'   - `std.error`: The pooled standard error of the estimate.
+#'   - `statistic`: The pooled test statistic (e.g., z-value, t-value).
+#'   - `p.value`: The pooled p-value for the test statistic.
+#'   - `conf.low`: The lower bound of the confidence interval for the estimate.
+#'   - `conf.high`: The upper bound of the confidence interval for the estimate.
+#'
+#' @examples
+#' \dontrun{
+#' # Assuming `sem_results` is a SemResults object with lavaan model fits:
+#' pooled_results <- pool_sem(sem_results)
+#'
+#' # If you want to calculate and include confidence intervals at a 95% level:
+#' pooled_results_ci <- pool_sem(sem_results, conf.int = TRUE, conf.level = 0.95)
+#' }
+#'
+#' @export
+#' @rdname pool_sem
+#' @aliases pool_sem
+
+setMethod("pool_sem", signature(object = "SemResults"), function(object,
+                                                                 conf.int = FALSE,
+                                                                 conf.level = 0.95,
+                                                                 ...) {
+  pooledData <- NULL
+  if (object@method == "lavaan") {
+    pooledData <-
+      extract_lav(object@results,
+        conf.int = conf.int,
+        conf.level = conf.level
+      )
+  } else if (object@method == "OpenMx") {
+    pooledData <-
+      extract_mx(object@results,
+        conf.int = conf.int,
+        conf.level = conf.level
+      )
+  } else {
+    stop(paste(
+      "Unsupported method specified in SemResults:",
+      object@method
+    ))
+  }
+
+  if (is.null(pooledData)) {
+    stop("Failed to pool results. Please check your data and method.")
+  }
+
+  new("PooledSEMResults",
+    results = pooledData,
+    method = object@method
+  )
+})
+
+### ---------------------------------------------
+### Helper functions for pooling results from lavaan and OpenMx objects
+### These functions should be customized based on the structure of your lavaan and OpenMx objects and the specific information you need to extract for pooling.
+### ---------------------------------------------
 extract_lav <- function(fit,
-                        conf.int = FALSE,
-                        conf.level = 0.95) {
-    # Extract the relevant information from a lavaan object
-    # This function should be customized based on the structure of your lavaan objects
-    # and the specific information you need to extract for pooling
+                        conf.int = conf.int,
+                        conf.level = conf.level) {
+  # Extract the relevant information from a lavaan object
+  # This function should be customized based on the structure of your lavaan objects
+  # and the specific information you need to extract for pooling
 
-    nimp <- length(fit)
-    pooled_est <- fit |>
-        purrr::map_dfr(broom::tidy, conf.int = conf.int, .id = "imp") |>
-        dplyr::select(
-            .data$term,
-            .data$estimate,
-            .data$std.error,
-            .data$statistic,
-            .data$p.value
-        ) |>
-        dplyr::group_by(.data$term) |>
-        dplyr::summarise(
-            q_est = mean(.data$estimate),
-            bet_var = var(.data$estimate),
-            w_var = sum(.data$std.error^2) / nimp
-        ) |>
-        dplyr::ungroup() |>
-        dplyr::mutate(tot_var = .data$w_var + .data$bet_var * (1 + 1 / nimp))
-    return(pooled_est)
+  nimp <- length(fit)
+  pooled_est <- fit |>
+    purrr::map_dfr(broom::tidy,
+      conf.int = conf.int,
+      conf.level,
+      .id = "imp"
+    ) |>
+    dplyr::select(
+      .data$term,
+      .data$estimate,
+      .data$std.error,
+      .data$statistic,
+      .data$p.value
+    ) |>
+    dplyr::group_by(.data$term) |>
+    dplyr::summarise(
+      q_est = mean(.data$estimate),
+      bet_var = var(.data$estimate),
+      w_var = sum(.data$std.error^2) / nimp
+    ) |>
+    dplyr::ungroup() |>
+    dplyr::mutate(tot_var = .data$w_var + .data$bet_var * (1 + 1 / nimp))
+  return(pooled_est)
 }
 
 extract_mx <- function(fit,
                        conf.int = FALSE,
-                       conf.level = 0.95) {
-    # Extract the relevant information from a MxModel object
-    # This function should be customized based on the structure of your lavaan objects
-    # and the specific information you need to extract for pooling
+                       conf.level = conf.level) {
+  # Extract the relevant information from a MxModel object
+  # This function should be customized based on the structure of your lavaan objects
+  # and the specific information you need to extract for pooling
 
-    nimp <- length(fit)
-    pooled_est <- fit |>
-        purrr::map_dfr(RMediation::tidy, conf.int = conf.int, .id = "imp") |>
-        dplyr::select(
-            .data$term,
-            .data$estimate,
-            .data$std.error,
-            .data$statistic,
-            .data$p.value
-        ) |>
-        dplyr::group_by(.data$term) |>
-        dplyr::summarise(
-            q_est = mean(.data$estimate),
-            bet_var = var(.data$estimate),
-            w_var = sum(.data$std.error^2) / nimp
-        ) |>
-        dplyr::ungroup() |>
-        dplyr::mutate(tot_var = .data$w_var + .data$bet_var * (1 + 1 / nimp))
-    return(pooled_est)
+  nimp <- length(fit)
+  pooled_est <- fit |>
+    purrr::map_dfr(RMediation::tidy, conf.int = conf.int, .id = "imp") |>
+    dplyr::select(
+      .data$term,
+      .data$estimate,
+      .data$std.error,
+      .data$statistic,
+      .data$p.value
+    ) |>
+    dplyr::group_by(.data$term) |>
+    dplyr::summarise(
+      q_est = mean(.data$estimate),
+      bet_var = var(.data$estimate),
+      w_var = sum(.data$std.error^2) / nimp
+    ) |>
+    dplyr::ungroup() |>
+    dplyr::mutate(tot_var = .data$w_var + .data$bet_var * (1 + 1 / nimp))
+  return(pooled_est)
 }

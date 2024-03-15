@@ -22,10 +22,10 @@
 #' @docType class
 #' @import methods
 #' @importFrom methods setClass setValidity setMethod validObject
-#' @name SemResults-class
+#' @name SemResults
+#' @rdname SemResults-class
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
-#' @seealso [SemImputedData-class]
-
+#' @aliases SemResults SemResults-class
 setClass(
   "SemResults",
   slots = list(
@@ -50,6 +50,17 @@ setValidity("SemResults", function(object) {
     messages <-
       c(messages, "conf.level must be a numeric value between 0 and 1")
   }
+
+  if (!is.logical(object@conf.int) || length(object@conf.int) != 1) {
+    messages <-
+      c(messages, "conf.int must be a single logical value")
+  }
+
+  if (!is.list(object@results) || length(object@results) == 0) {
+    messages <-
+      c(messages, "results must be a non-empty list")
+  }
+
   if (length(messages) == 0) {
     TRUE
   } else {
@@ -77,6 +88,10 @@ setMethod("initialize", "SemResults", function(.Object,
     stop("conf.level must be a single numeric value between 0 and 1")
   }
 
+  if (!inherits(results[[1]], "lavaan") &&
+    !inherits(results[[1]], "MxModel")) {
+    stop("results must contain objects of class 'lavaan' or 'MxModel'")
+  }
   .Object@results <- results
   .Object@method <- method
   .Object@conf.int <- conf.int
@@ -88,28 +103,27 @@ setMethod("initialize", "SemResults", function(.Object,
   return(.Object)
 })
 
-### =============================================
+### ============================================================================
 ### Methods for the SemResults class
-### ============================================
+### ============================================================================
 
-### ---------------------------------------------
-### run_sem method: Constructor Method
-### ---------------------------------------------
-#' @title Run a SEM model
+
+### ----------------------------------------------------------------------------
+### run_sem method
+### ----------------------------------------------------------------------------
+#' Run a SEM model
 #'
-#' @description
 #' A generic function to run and analyze multiply imputed data sets.
 #'
 #' @param object A `SemImputedData` object
 #' @param model A character string specifying the SEM model
-#' @param conf.int A numeric value specifying the confidence interval level. Defaults to FALSE.
+#' @param conf.int A logical value specifying the confidence interval level. Defaults to FALSE.
 #' @param conf.level A numeric value specifying the confidence level. Defaults to 0.95.
 #' @param ... Additional arguments passed to either [lavaan::sem] or [OpenMx::MxModel].
 #' @return A `SemResults` object
 #' @usage run_sem(object, model, conf.int, conf.level, ...)
 #' @export
 #' @rdname run_sem
-#' @aliases run_sem
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
 #' @importFrom methods setGeneric
 
@@ -120,20 +134,17 @@ setGeneric(
   }
 )
 
-#' @title Run SEM Analysis on Imputed Data
+#' Run SEM Analysis on Imputed Data
 #'
-#' @description
 #' This method facilitates running SEM analysis using either lavaan or OpenMx
 #' on multiply imputed datasets contained within a [SemImputedData-class] object.
 #' @export
-#' @importFrom mice complete as.mira
 #' @importFrom methods new setMethod setGeneric
 #' @importFrom lavaan sem
 #' @importFrom OpenMx mxModel mxRun mxData imxVerifyModel
 #' @importFrom purrr map
 #' @rdname run_sem
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
-#' @seealso [SemImputedData-class]
 #' @examples
 #' \dontrun{
 #' # Load Holzinger and Swineford (1939) dataset
@@ -152,31 +163,33 @@ setGeneric(
 #'  "
 #' ## Note that the model is specified as a string
 #' res <- run_sem(sem_data, model)
-#' lapply(res@results, summary)
 #' }
-setMethod("run_sem", "SemImputedData", function(object, model, conf.int = FALSE, conf.level = .95, ...) {
-  # Ensure 'mids' is a 'mids' object from the 'mice' package
+setMethod("run_sem", signature(object = "SemImputedData"), function(object, model, conf.int = FALSE, conf.level = .95, ...) {
   if (!inherits(object@data, "mids")) {
-    stop("'mids' must be a 'mids' object from the 'mice' package.")
+    stop("'object@data' must be a 'mids' object from the 'mice' package.")
   }
-  sem_list <- if (object@method == "lavaan") {
-    lav_mice(model, object@data, ...)
-  } else if (object@method == "OpenMx") {
-    mx_mice(model, object@data, ...)
-  } else {
-    stop("Unsupported method specified in SemImputedData")
-  }
-  # Create a SemResults object with the collected SEM fits
-  sem_results_object <- new("SemResults", results = sem_list, method = object@method, conf.int = conf.int, conf.level = conf.level)
 
-  return(sem_results_object)
+  # Dynamically select the appropriate function based on the SEM method.
+  sem_fn <- switch(tolower(object@method),
+    "lavaan" = lav_mice,
+    "openmx" = mx_mice,
+    stop("Unsupported method specified: ", object@method)
+  )
+
+  sem_results <- sem_fn(object@data, model, ...)
+
+  # Ensure results are returned in a consistent format.
+  new("SemResults", results = sem_results, method = object@method, conf.int = conf.int, conf.level = conf.level)
 })
 
+
+### ----------------------------------------------------------------------------
+### Helper functions for run_sem method
+### ----------------------------------------------------------------------------
 lav_mice <- function(mids, model, ...) {
   # Extract complete imputed datasets
-  data_complete <- mice::complete(mids, action = "all")
   sem_results <-
-    data_complete |> purrr::map(lavaan::sem, model = model, ...)
+    mice::complete(mids, action = "all") |> purrr::map(lavaan::sem, model = model, ...)
   return(sem_results)
 }
 

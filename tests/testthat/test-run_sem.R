@@ -1,8 +1,8 @@
-library(testthat)
+# library(testthat)
 library(RMediation) # replace with the actual name of your package
-library(mice)
-library(lavaan)
-library(OpenMx)
+# library(mice)
+# library(lavaan)
+# library(OpenMx)
 
 test_that("run_sem executes correctly with lavaan models", {
   # Assuming you have a predefined `SemImputedData` object for lavaan models
@@ -30,6 +30,7 @@ test_that("run_sem executes correctly with lavaan models", {
  textual =~ x4 + x5 + x6
  speed   =~ x7 + x8 + x9
  "
+  result <- run_sem(sem_data, model)
   expect_silent(result <- run_sem(sem_data, model))
   expect_no_error(lapply(result@results, summary))
 

@@ -93,9 +93,7 @@ res1 <- imputed_data |>
     run_sem(model = model)
 
 res1@results |>
-    purrr::map_df(tidy, .id = "imp") |>
-    group_by(imp) |>
-    nest()
+    purrr::map_df(tidy, .id = "imp") 
 
 
 est_df <- res1@results |>

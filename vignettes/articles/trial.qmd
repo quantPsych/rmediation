@@ -95,8 +95,7 @@ res1 <- imputed_data |>
 res1@results |>
     purrr::map_df(tidy, .id = "imp") |>
     group_by(term)|>
-    summarise( estimate=mean(estimate)) |>
-    print()
+    summarise( estimate=mean(estimate), std.error= sqrt(mean(std.error^2), p.value=mean(log(p.value))) |>))
 
 
 est_df <- res1@results |>

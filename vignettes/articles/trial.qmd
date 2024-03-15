@@ -135,6 +135,7 @@ library(broom)
 process_model_results <- function(model_results) {
     # Assuming `model_results` is a list of lavaan or OpenMx model objects
 
+    # 0. Tidy Data Frame of Coefficient Estimates, Standard Errors, etc.
     res_tidy_df <- model_results |>
         purrr::map_df(tidy, .id = "imp")
 

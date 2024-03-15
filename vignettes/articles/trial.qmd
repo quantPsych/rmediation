@@ -96,7 +96,7 @@ res1@results |>
     purrr::map_df(tidy, .id = "imp") |>
     group_by(term)|>
     summarise( estimate=mean(estimate)) |>
-    transpose()
+    print()
 
 
 est_df <- res1@results |>

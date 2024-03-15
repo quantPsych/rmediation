@@ -141,7 +141,7 @@ process_model_results <- function(model_results) {
 
     est_df <- model_results |>
         dplyr::select(term, estimate) |>
-        
+        group_by(term) |>
         summarise(across(everything(), mean))
 
     # 1. Coefficient Estimates Data Frame

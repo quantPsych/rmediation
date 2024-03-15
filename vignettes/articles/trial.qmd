@@ -170,14 +170,14 @@ process_model_results <- function(model_results) {
     )
 }
 
-# Example usage:
-# Assuming `res1` is a list of model results from either lavaan or OpenMx
-result_objects <- process_model_results(res1@results)
+# # Example usage:
+# # Assuming `res1` is a list of model results from either lavaan or OpenMx
+# result_objects <- process_model_results(res1@results)
 
-# You can then access the data frame of coefficient estimates, standard errors, and the within covariance matrix like this:
-estimates_df <- result_objects$coefficient_estimates
-standard_errors_df <- result_objects$standard_errors
-within_cov_matrix <- result_objects$within_covariance_matrix
+# # You can then access the data frame of coefficient estimates, standard errors, and the within covariance matrix like this:
+# estimates_df <- result_objects$coefficient_estimates
+# standard_errors_df <- result_objects$standard_errors
+# within_cov_matrix <- result_objects$within_covariance_matrix
 
 ```
 

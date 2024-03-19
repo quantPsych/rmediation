@@ -189,7 +189,7 @@ extract_table(res1@results)
 
 ```{r}
 res1@estimate_df
-res1@coef_df 
+res1@coef_df |> dplyr::select( select=-.imp) 
 ```
 
 

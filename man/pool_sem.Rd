@@ -5,18 +5,18 @@
 \alias{pool_sem,SemResults-method}
 \title{Pool SEM Analysis Results}
 \usage{
-pool_sem(object, conf.int = FALSE, conf.level = 0.95, ...)
+pool_sem(object, ...)
 
-\S4method{pool_sem}{SemResults}(object, conf.int = FALSE, conf.level = 0.95, ...)
+\S4method{pool_sem}{SemResults}(object)
 }
 \arguments{
 \item{object}{\code{SemResults} object with SEM analysis results.}
 
+\item{...}{Additional arguments for extensions.}
+
 \item{conf.int}{Logical; if TRUE, calculates confidence intervals.}
 
 \item{conf.level}{Confidence level for the intervals (default is 0.95).}
-
-\item{...}{Additional arguments for extensions.}
 }
 \value{
 \code{PooledSEMResults} object containing pooled SEM analysis results.

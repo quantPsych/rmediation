@@ -13,3 +13,8 @@ test_that("Invalid lavaan model syntax returns FALSE", {
   # data(HolzingerSwineford1939, package = "lavaan")
   expect_false(is_lav_syntax(bad_model))
 })
+
+test_that("Rturn FALSE when the model is not character string", {
+  str_model <- lm(Sepal.Length ~ Sepal.Width, data = iris)
+  expect_false(is_lav_syntax(str_model))
+})

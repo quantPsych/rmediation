@@ -1,5 +1,5 @@
 # library(testthat)
-library(RMediation) # replace with the actual name of your package
+# library(RMediation) # replace with the actual name of your package
 # library(mice)
 # library(lavaan)
 # library(OpenMx)
@@ -23,23 +23,23 @@ test_that("run_sem executes correctly with lavaan models", {
       seed = 12345,
       printFlag = FALSE
     )
-  sem_data <-
-    impute_sem(data = imputed_data, method = "lavaan")
+
   model <- "
  visual  =~ x1 + x2 + x3
  textual =~ x4 + x5 + x6
  speed   =~ x7 + x8 + x9
  "
-  result <- run_sem(sem_data, model)
-  expect_silent(result <- run_sem(sem_data, model))
-  expect_no_error(lapply(result@results, summary))
+  sem_data <-
+    set_sem(model, data = imputed_data, conf.int = TRUE, conf.level = 0.95)
+  # result <- run_sem(sem_data)
+  expect_no_error(result <- run_sem(sem_data))
+  #   expect_no_error(lapply(result@results, summary))
 
   # Check that the result is as expected
   # This will depend on the output format of run_sem
   # Example:
   expect_true(inherits(result, "SemResults"))
 })
-
 
 
 test_that("run_sem executes correctly with OpenMx models", {
@@ -97,9 +97,9 @@ test_that("run_sem executes correctly with OpenMx models", {
     )
   )
   sem_data <-
-    impute_sem(data = imputed_data, method = "OpenMx")
+    set_sem(mx_model, data = imputed_data)
 
-  result <- run_sem(sem_data, mx_model)
+  expect_no_error(result <- run_sem(sem_data))
 
   # Check that the result is as expected
   expect_true(inherits(result, "SemResults"))

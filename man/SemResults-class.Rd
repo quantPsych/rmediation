@@ -21,15 +21,21 @@ class \code{lavaan} or \code{MxModel}). The \code{results} slot is the primary s
 location for SEM results, and it is expected to be a list of length equal
 to the number of imputed datasets.}
 
+\item{\code{esimate_df}}{A data frame containing the parameter estimates and standard errors, statistics, p values from running the SEM model on the imputed data.}
+
+\item{\code{coef_df}}{A data frame containing $m$ rows of the coefficient estimates of the SEM model for each imputed dataset.}
+
+\item{\code{cov_df}}{A list of $m$ the covariance matrices of the coefficient estimates of the SEM model for each imputed dataset. These are "within-imputation" covariance matrices.}
+
 \item{\code{method}}{A character string specifying the SEM package used for the
 analysis, with valid options being "lavaan" for \code{lavaan} model fits
-or "OpenMx" for \code{OpenMx} model fits. Defaults to "lavaan".}
+or "OpenMx" for \code{OpenMx} model fits. This slot inherits from the \code{SemImputedData} class.}
 
 \item{\code{conf.int}}{A logical value indicating whether confidence intervals are
-included in the SEM results. Defaults to \code{FALSE}.}
+included in the SEM results. Defaults to \code{FALSE}. This slot inherits from the \code{SemImputedData} class.}
 
 \item{\code{conf.level}}{A numeric value specifying the confidence level for
-confidence intervals, which must be between 0 and 1. Defaults to 0.95.}
+confidence intervals, which must be between 0 and 1. Defaults to 0.95. This slot inherits from the \code{SemImputedData} class.}
 }}
 
 \author{

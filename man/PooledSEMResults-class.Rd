@@ -24,7 +24,23 @@ for each parameter estimated across multiple imputations.
 \item \code{conf.high}: The upper bound of the confidence interval for the estimate.
 }}
 
+\item{\code{coef_pool}}{data.frame A data frame containing the pooled estimates of the coefficients in the SEM model.}
+
+\item{\code{cov_total}}{matrix The pooled total covariance matrix of the parameter estimates.}
+
+\item{\code{cov_between}}{matrix The pooled between-imputation covariance matrix of the parameter estimates.}
+
+\item{\code{cov_within}}{matrix The pooled within-imputation covariance matrix of the parameter estimates.}
+
+\item{\code{std.error}}{numeric The pooled standard error of the parameter estimates.}
+
 \item{\code{method}}{character The method used for SEM analysis ('lavaan' or 'OpenMx').}
+
+\item{\code{n_imputations}}{numeric The number of imputations or datasets used in the analysis.}
+
+\item{\code{conf.int}}{logical Whether to calculate confidence intervals for the pooled estimates. default is \code{FALSE}.}
+
+\item{\code{conf.level}}{numeric The confidence level used in the interval calculation. default is \code{0.95}.}
 }}
 
 \author{

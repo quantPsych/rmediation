@@ -15,6 +15,8 @@ using either the \code{lavaan} or \code{OpenMx} packages.
 \describe{
 \item{\code{data}}{An object of class \code{mids} from the \code{mice} package, representing multiply imputed datasets.}
 
+\item{\code{model}}{A \code{lavaan} or \code{OpenMx} model syntax to be used for SEM analysis. For \code{lavaan} models, the syntax should be a character string as described in \link[lavaan:model.syntax]{lavaan::model.syntax}. For \code{OpenMx} models, the syntax should be an \link{mxModel} object with or without \code{\link[=mxData]{mxData()}} specified; that is, \code{mxModel} syntax can be without data specified. In addition, both \code{lavaan} and \code{OpenMx} models can be a fitted model object in the respective package.}
+
 \item{\code{method}}{A character string indicating the SEM package to be used for analysis.
 Valid options are "lavaan" or "OpenMx". Defaults to "lavaan".}
 
@@ -23,6 +25,12 @@ included in the SEM results. Defaults to \code{FALSE}.}
 
 \item{\code{conf.level}}{A numeric value specifying the confidence level for
 confidence intervals, which must be between 0 and 1. Defaults to 0.95.}
+
+\item{\code{original_data}}{A derived (from mids object) slot to store the original data used to create the imputed datasets.}
+
+\item{\code{n_imputations}}{A derived (from mids object) slot to store the number of imputations used to create the imputed datasets.}
+
+\item{\code{fit_model}}{A slot to store the fitted SEM model object.}
 }}
 
 \author{

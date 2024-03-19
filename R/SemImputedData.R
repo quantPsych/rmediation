@@ -5,13 +5,16 @@
 #' using either the `lavaan` or `OpenMx` packages.
 #'
 #' @slot data An object of class `mids` from the `mice` package, representing multiply imputed datasets.
+#' @slot model A `lavaan` or `OpenMx` model syntax to be used for SEM analysis. For `lavaan` models, the syntax should be a character string as described in [lavaan::model.syntax]. For `OpenMx` models, the syntax should be an [mxModel] object with or without [mxData()] specified; that is, `mxModel` syntax can be without data specified. In addition, both `lavaan` and `OpenMx` models can be a fitted model object in the respective package.
 #' @slot method A character string indicating the SEM package to be used for analysis.
 #' Valid options are "lavaan" or "OpenMx". Defaults to "lavaan".
 #' @slot conf.int A logical value indicating whether confidence intervals are
 #'   included in the SEM results. Defaults to `FALSE`.
 #' @slot conf.level A numeric value specifying the confidence level for
 #'   confidence intervals, which must be between 0 and 1. Defaults to 0.95.
-#' @importFrom methods setClass setValidity setMethod validObject
+#' @slot original_data A derived (from mids object) slot to store the original data used to create the imputed datasets.
+#' @slot n_imputations A derived (from mids object) slot to store the number of imputations used to create the imputed datasets.
+#' @slot fit_model A slot to store the fitted SEM model object.
 #' @exportClass SemImputedData
 #' @name SemImputedData
 #' @rdname SemImputedData
@@ -19,12 +22,26 @@
 #' @docType class
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
 
-setClass("SemImputedData",
+SemImputedData <- setClass("SemImputedData",
   slots = c(
-    data = "mids", # Ensuring 'data' is specifically a 'mids' object
+    data = "ANY", # Ensuring 'data' is specifically a 'mids' object
+    model = "ANY", # 'lavaan' or 'OpenMx' model syntax
     method = "character", # 'lavaan' or 'OpenMx',
     conf.int = "logical", # Whether to include confidence intervals in the SEM results
-    conf.level = "numeric" # The confidence level for confidence intervals
+    conf.level = "numeric", # The confidence level for confidence intervals
+    original_data = "data.frame", # The original data used to create the imputed datasets
+    n_imputations = "numeric", # The number of imputations used to create the imputed datasets
+    fit_model = "ANY" # The fitted SEM model object
+  ),
+  prototype = list(
+    data = NA,
+    model = NA,
+    method = "lavaan",
+    conf.int = FALSE,
+    conf.level = 0.95,
+    original_data = NULL,
+    n_imputations = NULL,
+    fit_model = NULL
   )
 )
 
@@ -32,50 +49,30 @@ setValidity("SemImputedData", function(object) {
   messages <- character()
 
   if (!inherits(object@data, "mids")) {
-    messages <-
-      c(
-        messages,
-        "'data' must be a 'mids' object from the 'mice' package."
-      )
+    messages <- c(messages, "'data' must be a 'mids' object from the 'mice' package.")
   }
+
+  # if (!is_lav_syntax(object@model, quiet = TRUE) && !inherits(object@model, "lavaan") && !inherits(object@model, "MxModel")) {
+  #   messages <- c(messages, "'model' must be a character string, a 'lavaan' object, or an 'MxModel' object.")
+  # }
 
   if (!object@method %in% c("lavaan", "OpenMx")) {
-    messages <-
-      c(messages, "'method' must be either 'lavaan' or 'OpenMx'.")
+    messages <- c(messages, "'method' must be either 'lavaan' or 'OpenMx'.")
   }
 
-  if (length(messages) == 0) {
-    TRUE
-  } else {
-    messages
+  if (!is.logical(object@conf.int) || length(object@conf.int) != 1) {
+    messages <- c(messages, "'conf.int' must have single logical value.")
   }
+
+  if (!is.numeric(object@conf.level) || length(object@conf.level) != 1 || object@conf.level < 0 || object@conf.level > 1) {
+    messages <- c(messages, "'conf.level' must be a single numeric value between 0 and 1.")
+  }
+  # if (!inherits(object@fit_model, "lavaan") && !inherits(object@fit_model, "MxModel")) {
+  #   messages <- c(messages, "'fit_model' must be a 'lavaan' or 'MxModel' object.")
+  # }
+
+  if (length(messages) == 0) TRUE else messages
 })
-
-
-setMethod("initialize", "SemImputedData",
-          function(.Object, data, method = "lavaan", conf.int = FALSE, conf.level = 0.95) {
-            if (!inherits(data, "mids")) {
-              stop("'data' must be a 'mids' object from the 'mice' package.", call. = FALSE)
-            }
-            if (!method %in% c("lavaan", "OpenMx")) {
-              stop("'method' must be either 'lavaan' or 'OpenMx'.", call. = FALSE)
-            }
-            if (!is.logical(conf.int) || length(conf.int) != 1) {
-              stop("conf.int must be a single logical value.", call. = FALSE)
-            }
-            if (!is.numeric(conf.level) || conf.level <= 0 || conf.level >= 1) {
-              stop("conf.level must be a numeric value between 0 and 1.", call. = FALSE)
-            }
-
-            .Object@data <- data
-            .Object@method <- method
-            .Object@conf.int <- conf.int
-            .Object@conf.level <- conf.level
-
-            return(.Object)
-          }
-)
-
 
 ### =========================================================
 ### SemResults Methods
@@ -88,8 +85,7 @@ setMethod("initialize", "SemImputedData",
 #' object from the `mice` package and that the specified SEM analysis method is supported.
 #'
 #' @param data A `mids` object from the `mice` package containing multiply imputed datasets.
-#' @param method A character string specifying the SEM analysis method.
-#'        Valid options are "lavaan" or "OpenMx". Defaults to "lavaan".
+#' @param model A `lavaan` or `OpenMx` model syntax to be used for SEM analysis. For `lavaan` models, the syntax should be a character string as described in [lavaan::model.syntax]. For `OpenMx` models, the syntax should be an [mxModel] object with or without [mxData()] specified; that is, `mxModel` syntax can be without data specified. In addition, both `lavaan` and `OpenMx` models can be a fitted model object in the respective package.
 #' @param conf.int A logical value indicating whether confidence intervals are
 #'   included in the SEM results. Defaults to `FALSE`.
 #' @param conf.level A numeric value specifying the confidence level for
@@ -98,39 +94,84 @@ setMethod("initialize", "SemImputedData",
 #'
 #' @return An object of class SemImputedData. See [SemImputedData] for the details of the slots.
 #'
-#' @details All the arguments `data`, `method`, `conf.int`, and `conf.level` are used to specify the SEM analysis. `impute_sem` is a constructor function for `SemImputedData` class. These methods are used as constructors for the `SemImputedData` class.
-#' @usage impute_sem(data, method, conf.int, conf.level)
+#' @details All the arguments `data`, `method`, `conf.int`, and `conf.level` are used to specify the SEM analysis. `set_sem` is a constructor function for `SemImputedData` class. These methods are used as constructors for the `SemImputedData` class.
+#' @usage set_sem(data, method = "lavaan", conf.int = FALSE, conf.level 0.95)
 #' @seealso  [SemImputedData] [mice::mids] [lavaan] [OpenMx]
+#' @aliases set_sem set_sem-methods
 #' @examples
 #' \dontrun{
 #' data("HolzingerSwineford1939", package = "lavaan")
 #' df_complete <- na.omit(HolzingerSwineford1939)
 #' amp <- mice::ampute(df_complete, prop = 0.2, mech = "MAR")
 #' imputed_data <- mice::mice(amp$amp, m = 3, maxit = 3, seed = 12345, printFlag = FALSE)
-#' sem_data <- impute_sem(data = imputed_data, method = "lavaan")
+#' sem_data <- set_sem(data = imputed_data, method = "lavaan")
 #' str(sem_data)
 #' }
+#' @rdname set_sem
 #' @export
-setGeneric("impute_sem", function(data, method = "lavaan", conf.int = FALSE, conf.level = 0.95) {
-  standardGeneric("impute_sem")
-})
 
+setGeneric("set_sem", function(data, model, conf.int = FALSE, conf.level = 0.95) standardGeneric("set_sem"),
+  signature = "data"
+)
 
-#' @rdname impute_sem
+#' @rdname set_sem
 #' @export
-setMethod("impute_sem", signature(data = "mids"), function(data, method = "lavaan", conf.int = FALSE, conf.level = 0.95) {
+
+setMethod("set_sem", "mids", function(data, model, conf.int = FALSE, conf.level = 0.95) {
+  if (missing(data)) {
+    stop("Argument 'data' is missing.", call. = FALSE)
+  }
+
+  if (missing(model)) {
+    stop("Argument 'model' is missing.", call. = FALSE)
+  }
+
   if (!inherits(data, "mids")) {
-    stop("'data' must be a 'mids' object from the 'mice' package.", call. = FALSE)
+    stop("'data' must be a 'mids' object from the 'mice' package.",
+      call. = FALSE
+    )
   }
 
-  if (!method %in% c("lavaan", "OpenMx")) {
-    stop("'method' must be either 'lavaan' or 'OpenMx'.", call. = FALSE)
+  if (!is_lav_syntax(model, quiet = TRUE) &&
+    !inherits(model, "lavaan") && !inherits(model, "MxModel")) {
+    stop(
+      "'model' must be a character string, a 'lavaan' object, or an 'mxModel' object.",
+      call. = FALSE
+    )
   }
 
-  # Capture additional arguments passed through ellipsis
-  # additional = list(...)
+  if (!is.numeric(conf.level) ||
+    length(conf.level) != 1 || conf.level < 0 || conf.level > 1) {
+    stop("'conf.level' must be a single numeric value between 0 and 1.",
+      call. = FALSE
+    )
+  }
 
-  # Create and return the SemImputedData object, correctly forwarding '...'
-  # Assuming 'SemImputedData' constructor can handle '...'
-  new("SemImputedData", data = data, method = method, conf.int = conf.int, conf.level = conf.level)
+  if (!is.logical(conf.int) || length(conf.int) != 1) {
+    stop("'conf.int' must be a single logical value (TRUE or FALSE).",
+      call. = FALSE
+    )
+  }
+
+  n_imputations <- data$m # number of imputations
+  original_data <- mice::complete(data, action = 0L) # original data
+
+  fit_model0 <- fit_model(model, original_data)
+
+  method <- if (inherits(fit_model0, "lavaan")) {
+    "lavaan"
+  } else {
+    "OpenMx"
+  }
+
+  SemImputedData(
+    data = data,
+    model = model,
+    method = method,
+    conf.int = conf.int,
+    conf.level = conf.level,
+    original_data = original_data,
+    n_imputations = n_imputations,
+    fit_model = fit_model0
+  )
 })

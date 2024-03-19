@@ -4,7 +4,10 @@
 #' attempting to parse and fit the model in a safe environment. If the model
 #' syntax is invalid, the function will return an error message.
 #' @param model A character string representing the lavaan model to be fitted.
+#' @param quiet A logical value indicating whether to suppress the error message. default is FALSE.
+#'
 #' @return A logical value indicating whether the model syntax is valid.
+#'
 #' @name is_lav_syntax
 #' @aliases is_lav_syntax is_lavaan
 #' @rdname is_lav_syntax
@@ -22,14 +25,17 @@
 #' visual ~ speed
 #' textual ~ speed"
 #' is_lav_syntax(good_model)
-is_lav_syntax <- function(model) {
-  result <- try(lavaan::lavaanify(model))
-  check_syntax <- if (inherits(result, "try-error")) {
-    # Code to execute if an error occurs
-    print("Syntax error occurred. Please check your model.")
-    FALSE
+is_lav_syntax <- function(model, quiet = FALSE) {
+  if (!is.character(model)) {
+    if (!quiet) print("The model syntax must be a character string.")
+    return(FALSE)
   } else {
-    TRUE
+    check_syntax <- try(lavaan::lavaanify(model))
+    if (inherits(check_syntax, "try-error")) {
+      if (!quiet) print("A lavaan syntax error occurred!")
+      return(FALSE)
+    } else {
+      return(TRUE)
+    }
   }
-  check_syntax
 }

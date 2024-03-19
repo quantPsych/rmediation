@@ -12,7 +12,15 @@
 #' - `p.value`: The pooled p-value for the test statistic.
 #' - `conf.low`: The lower bound of the confidence interval for the estimate.
 #' - `conf.high`: The upper bound of the confidence interval for the estimate.
+#' @slot coef_pool data.frame A data frame containing the pooled estimates of the coefficients in the SEM model.
+#' @slot cov_total matrix The pooled total covariance matrix of the parameter estimates.
+#' @slot cov_between matrix The pooled between-imputation covariance matrix of the parameter estimates.
+#' @slot cov_within matrix The pooled within-imputation covariance matrix of the parameter estimates.
+#' @slot std.error numeric The pooled standard error of the parameter estimates.
 #' @slot method character The method used for SEM analysis ('lavaan' or 'OpenMx').
+#' @slot n_imputations numeric The number of imputations or datasets used in the analysis.
+#' @slot conf.int logical Whether to calculate confidence intervals for the pooled estimates. default is `FALSE`.
+#' @slot conf.level numeric The confidence level used in the interval calculation. default is `0.95`.
 #'
 #' @import methods
 #' @importFrom methods setClass setValidity setMethod validObject
@@ -22,34 +30,34 @@
 #' @docType class
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
 #' @aliases PooledSEMResults PooledSEMResults-class
-setClass("PooledSEMResults",
-  slots = list(results = "data.frame", method = "character")
-)
 
-setMethod("initialize", "PooledSEMResults", function(.Object, results, method) {
-  requiredColumns <- c(
-    "term",
-    "estimate",
-    "std.error",
-    "statistic",
-    "p.value"
+PooledSEMResults <- setClass(
+  "PooledSEMResults",
+  slots = c(
+    results = "data.frame",
+    coef_pool = "data.frame",
+    cov_total = "matrix",
+    cov_between = "matrix",
+    cov_within = "matrix",
+    std.error = "numeric",
+    method = "character",
+    n_imputations = "numeric",
+    conf.int = "logical",
+    conf.level = "numeric"
   )
-  # Check for required columns
-  if (!all(requiredColumns %in% colnames(results))) {
-    stop(
-      "The results data frame must contain all required columns: term, estimate, std.error, statistic, p.value."
-    )
-  }
-  .Object@results <- results
-  .Object@method <- method
-
-  validObject(.Object)
-  return(.Object)
-})
+)
 
 setValidity("PooledSEMResults", function(object) {
   messages <- character(0)
 
+  # check if results is an empty data frame
+  if (!is.data.frame(object@results) || nrow(object@results) == 0 || ncol(object@results) == 0) {
+    messages <-
+      c(
+        messages,
+        "The results must be a non-empty data frame."
+      )
+  }
   requiredColumns <-
     c(
       "term",
@@ -58,7 +66,6 @@ setValidity("PooledSEMResults", function(object) {
       "statistic",
       "p.value"
     )
-
   # Check for required columns
   if (!all(requiredColumns %in% colnames(object@results))) {
     messages <-
@@ -67,24 +74,38 @@ setValidity("PooledSEMResults", function(object) {
         "The results data frame must contain all required columns: term, estimate, std.error, statistic, p.value."
       )
   }
-  # Check for NA values in critical columns
-  if (any(is.na(object@results[, requiredColumns]))) {
+  if (!is.data.frame(object@coef_pool) || nrow(object@coef_pool) == 0 || ncol(object@coef_pool) == 0) {
     messages <-
       c(
         messages,
-        "The results data frame contains NA values in critical columns."
+        "The coef_pool must be a non-empty data frame."
       )
   }
-  # Validate method
-  if (!object@method %in% c("lavaan", "OpenMx")) {
-    messages <-
-      c(messages, "Method must be either 'lavaan' or 'OpenMx'.")
-  }
-  if (length(messages) == 0) {
-    TRUE
-  } else {
-    messages
-  }
+  # check if cov_total is a positive definite symmetric matrix
+  # if (!is.matrix(object@cov_total) || nrow(object@cov_total) == 0 || ncol(object@cov_total) == 0) {
+  #   messages <-
+  #     c(
+  #       messages,
+  #       "The cov_total must be a non-empty matrix."
+  #     )
+  # } else if (!isSymmetric(object@cov_total, tol = 1e-8)) {
+  #   messages <-
+  #     c(
+  #       messages,
+  #       "The cov_total must be a symmetric matrix."
+  #     )
+  # } else if (!is_pd(object@cov_total)) {
+  #   messages <-
+  #     c(
+  #       messages,
+  #       "The cov_total must be a positive definite matrix."
+  #     )
+  # }
+  # if (length(messages) == 0) {
+  #   TRUE
+  # } else {
+  #   messages
+  # }
 })
 
 
@@ -130,8 +151,6 @@ setValidity("PooledSEMResults", function(object) {
 setGeneric(
   "pool_sem",
   function(object,
-           conf.int = FALSE,
-           conf.level = 0.95,
            ...) {
     standardGeneric("pool_sem")
   }
@@ -168,22 +187,19 @@ setGeneric(
 #' @rdname pool_sem
 #' @aliases pool_sem
 
-setMethod("pool_sem", signature(object = "SemResults"), function(object,
-                                                                 conf.int = FALSE,
-                                                                 conf.level = 0.95,
-                                                                 ...) {
+setMethod("pool_sem", "SemResults", function(object) {
   pooledData <- NULL
   if (object@method == "lavaan") {
     pooledData <-
       extract_lav(object@results,
-        conf.int = conf.int,
-        conf.level = conf.level
+        conf.int = object@conf.int,
+        conf.level = object@conf.level
       )
   } else if (object@method == "OpenMx") {
     pooledData <-
       extract_mx(object@results,
-        conf.int = conf.int,
-        conf.level = conf.level
+        conf.int = object@conf.int,
+        conf.level = object@conf.level
       )
   } else {
     stop(paste(
@@ -196,9 +212,17 @@ setMethod("pool_sem", signature(object = "SemResults"), function(object,
     stop("Failed to pool results. Please check your data and method.")
   }
 
-  new("PooledSEMResults",
+  PooledSEMResults(
     results = pooledData,
-    method = object@method
+    coef_pool = object@coef_pool,
+    cov_total = object@cov_total,
+    cov_between = object@cov_between,
+    cov_within = object@cov_within,
+    std.error = numeric(0),
+    method = object@method,
+    n_imputations = object@n_imputations,
+    conf.int = object@conf.int,
+    conf.level = object@conf.level
   )
 })
 
@@ -217,7 +241,7 @@ extract_lav <- function(fit,
   pooled_est <- fit |>
     purrr::map_dfr(broom::tidy,
       conf.int = conf.int,
-      conf.level,
+      conf.level = conf.level,
       .id = "imp"
     ) |>
     dplyr::select(
@@ -247,7 +271,7 @@ extract_mx <- function(fit,
 
   nimp <- length(fit)
   pooled_est <- fit |>
-    purrr::map_dfr(RMediation::tidy, conf.int = conf.int, .id = "imp") |>
+    purrr::map_dfr(RMediation::tidy, conf.int = conf.int, conf.level = conf.level, .id = "imp") |>
     dplyr::select(
       .data$term,
       .data$estimate,

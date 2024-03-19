@@ -1,8 +1,8 @@
-library(testthat)
-library(RMediation) # Replace with the actual name of your package
-library(lavaan)
-library(OpenMx)
-library(mice)
+# library(testthat)
+# library(RMediation) # Replace with the actual name of your package
+# library(lavaan)
+# library(OpenMx)
+# library(mice)
 
 # Mock data or a way to create SemResults objects for testing
 # Assuming `create_mock_SemResults` is a function you've defined to generate mock SemResults objects
@@ -12,6 +12,7 @@ create_mock_SemResults <- function(method) {
   # Replace this with actual data or object creation as necessary
   # The `method` argument can be used to customize the mock object based on the method
   # (e.g., lavaan, OpenMx) for which the object is being created
+  data(HolzingerSwineford1939, package = "lavaan")
   df_complete <-
     na.omit(HolzingerSwineford1939[c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "x8", "x9")])
   amp <- mice::ampute(df_complete, prop = 0.2, mech = "MAR")
@@ -74,7 +75,7 @@ create_mock_SemResults <- function(method) {
   )
 
   # Run the models
-  imp_sem <- impute_sem(data = imputed_data, method = method)
+  imp_sem <- set_sem(imputed_data, mx_model)
 
   res <- if (method == "lavaan") {
     run_sem(imp_sem, lav_model)
@@ -87,10 +88,6 @@ create_mock_SemResults <- function(method) {
 
 mock_lavaan_SemResults <- create_mock_SemResults(method = "lavaan")
 mock_OpenMx_SemResults <- create_mock_SemResults(method = "OpenMx")
-
-slotNames(mock_lavaan_SemResults)
-
-names(mock_lavaan_SemResults@results)
 
 pooled_results_lavaan <- pool_sem(mock_lavaan_SemResults)
 

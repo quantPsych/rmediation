@@ -5,18 +5,12 @@
 \alias{run_sem,SemImputedData-method}
 \title{Run a SEM model}
 \usage{
-run_sem(object, model, conf.int, conf.level, ...)
+run_sem(object, ...)
 
-\S4method{run_sem}{SemImputedData}(object, model, conf.int = FALSE, conf.level = 0.95, ...)
+\S4method{run_sem}{SemImputedData}(object, ...)
 }
 \arguments{
 \item{object}{A \code{SemImputedData} object}
-
-\item{model}{A character string specifying the SEM model}
-
-\item{conf.int}{A logical value specifying the confidence interval level. Defaults to FALSE.}
-
-\item{conf.level}{A numeric value specifying the confidence level. Defaults to 0.95.}
 
 \item{...}{Additional arguments passed to either \link[lavaan:sem]{lavaan::sem} or \link[OpenMx:MxModel-class]{OpenMx::MxModel}.}
 }
@@ -39,7 +33,7 @@ amp <- mice::ampute(df_complete, prop = 0.1, mech = "MAR")
 data_with_missing <- amp$amp
 # Perform multiple imputation
 imputed_data <- mice::mice(data_with_missing, m = 3, maxit = 3, seed = 12345, printFlag = FALSE)
-sem_data <- impute_sem(data = imputed_data, method = "lavaan")
+sem_data <- set_sem(data = imputed_data, method = "lavaan")
 model <- "
  visual  =~ x1 + x2 + x3
  textual =~ x4 + x5 + x6

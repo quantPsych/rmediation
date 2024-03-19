@@ -5,10 +5,12 @@
 \alias{is_lavaan}
 \title{Function to check if lavaan model syntax is valid}
 \usage{
-is_lav_syntax(model)
+is_lav_syntax(model, quiet = FALSE)
 }
 \arguments{
 \item{model}{A character string representing the lavaan model to be fitted.}
+
+\item{quiet}{A logical value indicating whether to suppress the error message. default is FALSE.}
 }
 \value{
 A logical value indicating whether the model syntax is valid.

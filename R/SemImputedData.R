@@ -155,7 +155,7 @@ setMethod("set_sem", "mids", function(data, model, conf.int = FALSE, conf.level 
   original_data <- mice::complete(data, action = 0L) # original data
   fit_model0 <- fit_model(model, original_data)
   method <- model_type(fit_model0)
-  method <- ifelse(method %in% c("MxModel", "OpenMx")) 
+  method <- ifelse(method %in% c("MxModel", "OpenMx"), "OpenMx", "lavaan")
 
   SemImputedData(
     data = data,

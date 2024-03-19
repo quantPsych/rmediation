@@ -134,7 +134,7 @@ setMethod("set_sem", "mids", function(data, model, conf.int = FALSE, conf.level 
     )
   }
 
-  if (!(model_type(model) %in% c("lavaan_syntax", "lavaan", "MxModel"))) {
+  if (!all(model_type(model) %in% c("lavaan_syntax", "lavaan", "MxModel", "OpenMx"))) {
     stop("The model must be a character string, a lavaan model object, or an OpenMx model object.")
   }
 

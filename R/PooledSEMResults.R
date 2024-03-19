@@ -15,7 +15,6 @@
 #' @slot cov_between matrix The pooled between-imputation covariance matrix of the parameter estimates.
 #' @slot cov_within matrix The pooled within-imputation covariance matrix of the parameter estimates.
 #' @slot method character The method used for SEM analysis ('lavaan' or 'OpenMx').
-#' @slot n_imputations numeric The number of imputations or datasets used in the analysis.
 #' @slot conf.int logical Whether to calculate confidence intervals for the pooled estimates. default is `FALSE`.
 #' @slot conf.level numeric The confidence level used in the interval calculation. default is `0.95`.
 #'
@@ -36,7 +35,6 @@ PooledSEMResults <- setClass(
     cov_between = "matrix",
     cov_within = "matrix",
     method = "character",
-    n_imputations = "numeric",
     conf.int = "logical",
     conf.level = "numeric"
   )

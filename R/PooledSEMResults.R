@@ -8,15 +8,12 @@
 #' - `term`: The name of the parameter being estimated.
 #' - `estimate`: The pooled estimate of the parameter.
 #' - `std.error`: The pooled standard error of the estimate.
-#' - `statistic`: The pooled test statistic (e.g., z-value, t-value).
 #' - `p.value`: The pooled p-value for the test statistic.
 #' - `conf.low`: The lower bound of the confidence interval for the estimate.
 #' - `conf.high`: The upper bound of the confidence interval for the estimate.
-#' @slot coef_pool data.frame A data frame containing the pooled estimates of the coefficients in the SEM model.
 #' @slot cov_total matrix The pooled total covariance matrix of the parameter estimates.
 #' @slot cov_between matrix The pooled between-imputation covariance matrix of the parameter estimates.
 #' @slot cov_within matrix The pooled within-imputation covariance matrix of the parameter estimates.
-#' @slot std.error numeric The pooled standard error of the parameter estimates.
 #' @slot method character The method used for SEM analysis ('lavaan' or 'OpenMx').
 #' @slot n_imputations numeric The number of imputations or datasets used in the analysis.
 #' @slot conf.int logical Whether to calculate confidence intervals for the pooled estimates. default is `FALSE`.

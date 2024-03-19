@@ -25,6 +25,7 @@ library(RMediation)
 library(mice)
 library(lavaan)
 library(OpenMx)
+library(broom)
 ```
 
 
@@ -33,19 +34,19 @@ library(OpenMx)
 data("HolzingerSwineford1939", package = "lavaan")
 # Introduce missing data
 df_complete <-
-  na.omit(HolzingerSwineford1939[c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "x8", "x9")])
+    na.omit(HolzingerSwineford1939[c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "x8", "x9")])
 amp <- mice::ampute(df_complete, prop = 0.2, mech = "MAR")
 data_with_missing <- amp$amp
 
 # Perform multiple imputation
 imputed_data <-
-  mice::mice(
-    data_with_missing,
-    m = 5,
-    seed = 12345,
-    printFlag = FALSE,
-    iclude = TRUE
-  )
+    mice::mice(
+        data_with_missing,
+        m = 5,
+        seed = 12345,
+        printFlag = FALSE,
+        iclude = TRUE
+    )
 
 model_lav <- "
  visual  =~ x1 + x2 + x3
@@ -63,7 +64,7 @@ sem(fit, data = data_with_missing, do.fit = FALSE)
 sem(fit, data = data_with_missing)
 
 sem_data <-
-  set_sem(data = imputed_data, model_lav, conf.int = TRUE, conf.level = 0.95)
+    set_sem(data = imputed_data, model_lav, conf.int = TRUE, conf.level = 0.95)
 
 names(imputed_data)
 
@@ -74,17 +75,17 @@ mice::complete(imputed_data, 1) |> head()
 
 ```{r}
 fit_sem <- function(model, original_data) {
-  if (is_lav_syntax(model, quiet = TRUE)) {
-    lavaan::sem(model, data = original_data)
-  } else if (!is_fit(model) && inherits(model, "lavaan")) {
-    lavaan::sem(model, data = original_data, do.fit = TRUE) # fit the model
-  } else if (inherits(model, "mxModel") && !is_fit(model)) {
-    model_n <-
-      OpenMx::mxModel(model, mxData(original_data, type = "raw"))
-    OpenMx::mxRun(model_n)
-  } else {
-    model
-  }
+    if (is_lav_syntax(model, quiet = TRUE)) {
+        lavaan::sem(model, data = original_data)
+    } else if (!is_fit(model) && inherits(model, "lavaan")) {
+        lavaan::sem(model, data = original_data, do.fit = TRUE) # fit the model
+    } else if (inherits(model, "mxModel") && !is_fit(model)) {
+        model_n <-
+            OpenMx::mxModel(model, mxData(original_data, type = "raw"))
+        OpenMx::mxRun(model_n)
+    } else {
+        model
+    }
 }
 ```
 
@@ -129,38 +130,38 @@ lav_opts$do.fit
 extract_lav <- function(fit,
                         conf.int = FALSE,
                         conf.level = 0.95) {
-  # Extract the relevant information from a lavaan object
-  # This function should be customized based on the structure of your lavaan objects
-  # and the specific information you need to extract for pooling
+    # Extract the relevant information from a lavaan object
+    # This function should be customized based on the structure of your lavaan objects
+    # and the specific information you need to extract for pooling
 
-  nimp <- length(fit)
-  pooled_est <- fit |>
-    purrr::map_dfr(RMediation::tidy, conf.int = conf.int, .id = "imp") |>
-    dplyr::select(
-      term,
-      estimate,
-      std.error,
-      statistic,
-      p.value
-    ) |>
-    dplyr::group_by(term) |>
-    dplyr::summarise(
-      estimate = mean(estimate),
-      bet_var = var(estimate),
-      w_var = sum(std.error^2) / nimp
-    ) |>
-    dplyr::ungroup() |>
-    dplyr::mutate(tot_var = w_var + bet_var * (1 + 1 / nimp), std.error = sqrt(tot_var)) |>
-    dplyr::select(term, estimate, std.error, tot_var)
-  return(pooled_est)
+    nimp <- length(fit)
+    pooled_est <- fit |>
+        purrr::map_dfr(RMediation::tidy, conf.int = conf.int, .id = "imp") |>
+        dplyr::select(
+            term,
+            estimate,
+            std.error,
+            statistic,
+            p.value
+        ) |>
+        dplyr::group_by(term) |>
+        dplyr::summarise(
+            estimate = mean(estimate),
+            bet_var = var(estimate),
+            w_var = sum(std.error^2) / nimp
+        ) |>
+        dplyr::ungroup() |>
+        dplyr::mutate(tot_var = w_var + bet_var * (1 + 1 / nimp), std.error = sqrt(tot_var)) |>
+        dplyr::select(term, estimate, std.error, tot_var)
+    return(pooled_est)
 }
 ```
 
 ```{r}
 # Produce SemResults object
 res1 <- imputed_data |>
-  set_sem(model_lav) |>
-  run_sem()
+    set_sem(model_lav) |>
+    run_sem()
 
 extract_lav(res1@results)
 ```
@@ -178,37 +179,43 @@ extract_table <- function(fit, conf.int = FALSE, conf.level = 0.95) {
         summarise(est = mean(estimate), var_b = var(estimate), var_w = mean(std.error^2), var_tot = var_w + var_b * (1 + 1 / length(res1@results)), se = sqrt(var_tot), p.value = exp(mean(log(p.value)))) |>
         dplyr::ungroup() |>
         dplyr::rename(estimate = est, std.error = se) |>
-        dplyr::location(term, estimate, std.error, p.value, var_b, var_w, var_tot)
+        dplyr::relocate(term, estimate, std.error, p.value, var_b, var_w, var_tot)
     return(pooled_est)
 }
+
+extract_table(res1@results)
+```
+
+```{r}
+
 ```
 
 
 ```{r}
 
 res1@results |>
-  purrr::map_df(tidy, .id = "imp") |>
-  group_by(term) |>
-  summarise(est = mean(estimate), var_b = var(estimate), var_w = mean(std.error^2), var_tot = var_w + var_b * (1 + 1 / length(res1@results)), se = sqrt(var_tot), p.value = exp(mean(log(p.value)))) |>
-  knitr::kable()
+    purrr::map_df(tidy, .id = "imp") |>
+    group_by(term) |>
+    summarise(est = mean(estimate), var_b = var(estimate), var_w = mean(std.error^2), var_tot = var_w + var_b * (1 + 1 / length(res1@results)), se = sqrt(var_tot), p.value = exp(mean(log(p.value)))) |>
+    knitr::kable()
 
 est_df <- res1@results |>
-  purrr::map_dfr(lavaan::coef) |>
-  summarise(across(everything(), mean))
+    purrr::map_dfr(lavaan::coef) |>
+    summarise(across(everything(), mean))
 est_df |> knitr::kable()
 
 
 var_b <- res1@results |>
-  purrr::map_dfr(lavaan::coef) |>
-  summarise(across(everything(), var))
+    purrr::map_dfr(lavaan::coef) |>
+    summarise(across(everything(), var))
 
 var_b_cov <- res1@results |>
-  purrr::map_dfr(lavaan::coef) |>
-  cov()
+    purrr::map_dfr(lavaan::coef) |>
+    cov()
 
 var_w_cov <- res1@results |>
-  purrr::map(lavaan::vcov) |>
-  reduce(`+`) / length(res1@results)
+    purrr::map(lavaan::vcov) |>
+    reduce(`+`) / length(res1@results)
 
 rbind(bet1 = diag(var_b_cov), bet2 = var_b, within = diag(var_w_cov)) |> knitr::kable()
 ```
@@ -217,37 +224,37 @@ rbind(bet1 = diag(var_b_cov), bet2 = var_b, within = diag(var_w_cov)) |> knitr::
 ```{r}
 #| eval = FALSE
 process_model_results <- function(model_results) {
-  # Assuming `model_results` is a list of lavaan or OpenMx model objects
+    # Assuming `model_results` is a list of lavaan or OpenMx model objects
 
-  # 0. Tidy Data Frame of Coefficient Estimates, Standard Errors, etc.
-  res_tidy_df <- model_results |>
-    purrr::map_df(tidy, .id = "imp")
+    # 0. Tidy Data Frame of Coefficient Estimates, Standard Errors, etc.
+    res_tidy_df <- model_results |>
+        purrr::map_df(tidy, .id = "imp")
 
-  est_df <- model_results |>
-    dplyr::select(term, estimate) |>
-    group_by(term) |>
-    summarise(across(everything(), mean))
+    est_df <- model_results |>
+        dplyr::select(term, estimate) |>
+        group_by(term) |>
+        summarise(across(everything(), mean))
 
-  # 1. Coefficient Estimates Data Frame
-  coef_est_df <- map_dfr(model_results, lavaan::coef, .id = "imp") %>%
-    group_by(imp) %>%
-    summarise(across(everything(), mean))
+    # 1. Coefficient Estimates Data Frame
+    coef_est_df <- map_dfr(model_results, lavaan::coef, .id = "imp") %>%
+        group_by(imp) %>%
+        summarise(across(everything(), mean))
 
-  # 2. Standard Errors Data Frame
-  sq_std_errors_df <- map_dfr(model_results, \(x) diag(lavaan::vcov(x)), .id = "imp") %>%
-    group_by(imp) %>%
-    summarise(across(everything(), mean))
+    # 2. Standard Errors Data Frame
+    sq_std_errors_df <- map_dfr(model_results, \(x) diag(lavaan::vcov(x)), .id = "imp") %>%
+        group_by(imp) %>%
+        summarise(across(everything(), mean))
 
-  # 3. List of Within Covariance Matrix of the Coefficients
-  within_cov_matrices <- map(model_results, vcov())
-  mean_within_cov_matrix <- reduce(within_cov_matrices, `+`) / length(within_cov_matrices)
+    # 3. List of Within Covariance Matrix of the Coefficients
+    within_cov_matrices <- map(model_results, vcov())
+    mean_within_cov_matrix <- reduce(within_cov_matrices, `+`) / length(within_cov_matrices)
 
-  # Combine into a list
-  list(
-    coefficient_estimates = coef_est_df,
-    standard_errors = std_errors_df,
-    within_covariance_matrix = mean_within_cov_matrix
-  )
+    # Combine into a list
+    list(
+        coefficient_estimates = coef_est_df,
+        standard_errors = std_errors_df,
+        within_covariance_matrix = mean_within_cov_matrix
+    )
 }
 
 # # Example usage:
@@ -268,7 +275,7 @@ data_complete <- mice::complete(imputed_data, action = "all")
 str(data_complete)
 
 sem_results <-
-  data_complete |> purrr::map(lavaan::sem, model = model)
+    data_complete |> purrr::map(lavaan::sem, model = model)
 
 class(sem_results)
 names(sem_results)
@@ -288,17 +295,17 @@ data("HolzingerSwineford1939", package = "lavaan")
 manifestVars <- paste0("x", 1:9)
 latVar <- c("visual", "textual", "speed")
 model_mx <- mxModel("Simple SEM",
-  type = "RAM",
-  manifestVars = manifestVars,
-  latentVars = latVar,
-  mxPath(from = "visual", to = c("x1", "x2", "x3")),
-  mxPath(from = "textual", to = c("x4", "x5", "x6")),
-  mxPath(from = "speed", to = c("x7", "x8", "x9")),
-  mxPath(from = manifestVars, arrows = 2),
-  mxPath(from = latVar, arrows = 2, free = FALSE, values = 1.0),
-  mxPath(from = "one", to = manifestVars, arrows = 1, free = FALSE, values = 0),
-  mxPath(from = "one", to = latVar, arrows = 1, free = FALSE, values = 0),
-  mxData(HolzingerSwineford1939, type = "raw")
+    type = "RAM",
+    manifestVars = manifestVars,
+    latentVars = latVar,
+    mxPath(from = "visual", to = c("x1", "x2", "x3")),
+    mxPath(from = "textual", to = c("x4", "x5", "x6")),
+    mxPath(from = "speed", to = c("x7", "x8", "x9")),
+    mxPath(from = manifestVars, arrows = 2),
+    mxPath(from = latVar, arrows = 2, free = FALSE, values = 1.0),
+    mxPath(from = "one", to = manifestVars, arrows = 1, free = FALSE, values = 0),
+    mxPath(from = "one", to = latVar, arrows = 1, free = FALSE, values = 0),
+    mxData(HolzingerSwineford1939, type = "raw")
 )
 #
 # Fit the model
@@ -320,13 +327,13 @@ fit_mx@.wasRun
 # Note: This is just an illustrative example; replace it with your actual model specification
 
 model1 <- mxModel("good model",
-  type = "RAM",
-  manifestVars = c("x1", "x2", "x3"),
-  latentVars = c("latent1", "latent2"),
-  mxPath(from = "latent1", to = c("x1", "x2", "x3")),
-  mxPath(from = "latent2", to = c("x1", "x2", "x3")),
-  mxPath(from = "latent1", arrows = 2),
-  mxPath(from = "latent2", arrows = 2)
+    type = "RAM",
+    manifestVars = c("x1", "x2", "x3"),
+    latentVars = c("latent1", "latent2"),
+    mxPath(from = "latent1", to = c("x1", "x2", "x3")),
+    mxPath(from = "latent2", to = c("x1", "x2", "x3")),
+    mxPath(from = "latent1", arrows = 2),
+    mxPath(from = "latent2", arrows = 2)
 )
 
 
@@ -346,15 +353,15 @@ model1@.wasRun
 ```{r}
 method <- "OpenMx"
 vcov_sem <- switch(tolower(method),
-  "lavaan" = lavaan::vcov,
-  "openmx" = vcov,
-  stop("Unsupported method specified: ", method)
+    "lavaan" = lavaan::vcov,
+    "openmx" = vcov,
+    stop("Unsupported method specified: ", method)
 )
 
 coef_sem <- switch(tolower(method),
-  "lavaan" = lavaan::coef,
-  "openmx" = coef,
-  stop("Unsupported method specified: ", method)
+    "lavaan" = lavaan::coef,
+    "openmx" = coef,
+    stop("Unsupported method specified: ", method)
 )
 coef_sem(fit_mx)
 vcov_sem(fit_mx)

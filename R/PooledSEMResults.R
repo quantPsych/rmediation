@@ -126,8 +126,6 @@ setValidity("PooledSEMResults", function(object) {
 #' It calculates pooled estimates, standard errors, confidence intervals, and more.
 #'
 #' @param object `SemResults` object with SEM analysis results.
-#' @param conf.int Logical; if TRUE, calculates confidence intervals.
-#' @param conf.level Confidence level for the intervals (default is 0.95).
 #' @param ... Additional arguments for extensions.
 #'
 #' @return `PooledSEMResults` object containing pooled SEM analysis results.

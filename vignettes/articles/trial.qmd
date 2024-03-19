@@ -175,28 +175,10 @@ extract_table <- function(fit, conf.int = FALSE, conf.level = 0.95) {
     fit |>
         purrr::map_df(tidy, .id = "imp") |>
         group_by(term) |>
-        summarise(est = mean(estimate), var_b = var(estimate), var_w = mean(std.error^2), var_tot = var_w + var_b * (1 + 1 / length(res1@results)), std.error = sqrt(var_tot), p.value = exp(mean(log(p.value))))
-
-
-
-    pooled_est <- fit |>
-        purrr::map_dfr(RMediation::tidy, conf.int = conf.int, .id = "imp") |>
-        dplyr::select(
-            term,
-            estimate,
-            std.error,
-            statistic,
-            p.value
-        ) |>
-        dplyr::group_by(term) |>
-        dplyr::summarise(
-            estimate = mean(estimate),
-            bet_var = var(estimate),
-            w_var = sum(std.error^2) / nimp
-        ) |>
+        summarise(est = mean(estimate), var_b = var(estimate), var_w = mean(std.error^2), var_tot = var_w + var_b * (1 + 1 / length(res1@results)), se = sqrt(var_tot), p.value = exp(mean(log(p.value)))) |>
         dplyr::ungroup() |>
-        dplyr::mutate(tot_var = w_var + bet_var * (1 + 1 / nimp), std.error = sqrt(tot_var)) |>
-        dplyr::select(term, estimate, std.error, tot_var)
+        dplyr::rename(estimate = est, std.error = se) |>
+        dplyr::location()
     return(pooled_est)
 }
 ```

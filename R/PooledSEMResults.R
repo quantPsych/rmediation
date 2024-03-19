@@ -209,9 +209,7 @@ setMethod("pool_sem", "SemResults", function(object) {
 ### ---------------------------------------------
 
 pool_tidy <- function(object) {
-  # Extract the relevant information from a lavaan object
-  # This function should be customized based on the structure of your lavaan objects
-  # and the specific information you need to extract for pooling
+  ## Extract the relevant information from a SemResults object and return a tidy data frame
   n_imputations <- object@n_imputations
   x <- object@estimate_df
   x |>
@@ -223,11 +221,7 @@ pool_tidy <- function(object) {
 }
 
 pool_cov <- function(object) {
-  # Extract the relevant information from a lavaan object
-  # This function should be customized based on the structure of your lavaan objects
-  # and the specific information you need to extract for pooling
-  # estimate cov within
-  # object: SemResults object
+  ## Extract the relevant information from a SemResults object and return a list of covariance matrices
   cov_between <- object@coef_df |>
     dplyr::select(-.imp) |>
     cov()

@@ -121,7 +121,8 @@ parTable("vcov")
 
 lavInspect(fit, what = "data", add.labels = TRUE) |> head()
 lavNames(fit)
-lavInspect(fit0, what = "fit", add.labels = TRUE)
+lavInspect(fit, what = "vcov")
+lavTech(fit, what = "vcov", add.labels = TRUE) # This is useful
 lav_opts <- lavInspect(fit0, what = "options", add.labels = TRUE)
 lav_opts$test
 lav_opts$do.fit
@@ -191,7 +192,7 @@ extract_table(res1@results)
 
 ```{r}
 res1@estimate_df
-res1@coef_df |> dplyr::select( select=-.imp) 
+res1@coef_df |> dplyr::select(select = -.imp)
 ```
 
 

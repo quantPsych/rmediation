@@ -215,7 +215,7 @@ setMethod("run_sem", "SemImputedData", function(object, ...) {
 
   # Extract the results from the imputed datasets
   vcov_sem <- switch(tolower(object@method),
-    "lavaan" = lavaan::vcov,
+    "lavaan" = vcov_lav,
     "openmx" = vcov,
     stop("Unsupported method specified: ", object@method)
   )

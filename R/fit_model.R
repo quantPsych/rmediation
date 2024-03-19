@@ -16,7 +16,7 @@
 #' fitted_model <- fit_model(lav_model_syntax, HolzingerSwineford1939)
 #' }
 fit_model <- function(model, data) {
-  if (!(model_type(model) %in% c("lavaan_syntax", "lavaan", "MxModel"))) {
+  if (!(model_type(model) %in% c("lavaan_syntax", "lavaan", "MxModel", "OpenMx"))) {
     stop("The model must be a character string, a lavaan model object, or an OpenMx model object.")
   }
 

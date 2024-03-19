@@ -34,8 +34,8 @@ SemImputedData <- setClass("SemImputedData",
     fit_model = "ANY" # The fitted SEM model object
   ),
   prototype = list(
-    data = NA,
-    model = NA,
+    data = NULL,
+    model = NULL,
     method = "lavaan",
     conf.int = FALSE,
     conf.level = 0.95,

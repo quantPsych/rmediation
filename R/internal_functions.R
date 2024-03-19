@@ -42,3 +42,15 @@ model_type <- function(model) {
         stop("The provided model is neither a 'lavaan' syntax, 'lavaan' object, nor 'MxModel' object in 'OpenMx'.")
     }
 }
+
+### ----------------------------------------------------------------------------
+### vcov_lav
+### ----------------------------------------------------------------------------
+#' Extract the sampling covariance matrix from a lavaan object
+#' @param x A lavaan object
+#' @return A matrix
+#' @keywords internal
+#' @noRd
+vcov_lav <- function(x) {
+    lavTech(x, what = "vcov", add.labels = TRUE) # This is useful
+}

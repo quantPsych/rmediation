@@ -289,3 +289,11 @@ pool_tidy <- function(object, conf.int = FALSE, conf.level = 0.95, n_imputations
     dplyr::rename(estimate = est, std.error = se) |>
     dplyr::relocate(term, estimate, std.error, p.value, var_b, var_w, var_tot)
 }
+
+pool_cov_total <- function(object) {
+  # Extract the relevant information from a lavaan object
+  # This function should be customized based on the structure of your lavaan objects
+  # and the specific information you need to extract for pooling
+  x <- object@cov_df
+  
+}

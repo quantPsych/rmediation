@@ -203,7 +203,7 @@ pool_cov <- function(object) {
   ## Extract the relevant information from a SemResults object and return a list of covariance matrices
   n_imputations <- length(object@results)
   cov_between <- object@coef_df |>
-    dplyr::select(-.imp) |>
+    dplyr::select(-.data$.imp) |>
     cov()
   cov_within <- Reduce("+", object@cov_df) / n_imputations
   cov_total <- cov_between * (1 + 1 / n_imputations) + cov_within

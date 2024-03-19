@@ -39,6 +39,6 @@ model_type <- function(model) {
     } else if (inherits(model, "MxModel")) {
         return("OpenMx")
     } else {
-        stop("The provided model is neither a 'lavaan' syntax, 'lavaan' object, nor 'MxModel' object.")
+        stop("The provided model is neither a 'lavaan' syntax, 'lavaan' object, nor 'MxModel' object in 'OpenMx'.")
     }
 }

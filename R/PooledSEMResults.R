@@ -207,65 +207,6 @@ setMethod("pool_sem", "SemResults", function(object) {
 ### Helper functions for pooling results from lavaan and OpenMx objects
 ### These functions should be customized based on the structure of your lavaan and OpenMx objects and the specific information you need to extract for pooling.
 ### ---------------------------------------------
-extract_lav <- function(fit,
-                        conf.int = conf.int,
-                        conf.level = conf.level) {
-  # Extract the relevant information from a lavaan object
-  # This function should be customized based on the structure of your lavaan objects
-  # and the specific information you need to extract for pooling
-
-  nimp <- length(fit)
-  pooled_est <- fit |>
-    purrr::map_dfr(broom::tidy,
-      conf.int = conf.int,
-      conf.level = conf.level,
-      .id = "imp"
-    ) |>
-    dplyr::select(
-      .data$term,
-      .data$estimate,
-      .data$std.error,
-      .data$statistic,
-      .data$p.value
-    ) |>
-    dplyr::group_by(.data$term) |>
-    dplyr::summarise(
-      q_est = mean(.data$estimate),
-      bet_var = var(.data$estimate),
-      w_var = sum(.data$std.error^2) / nimp
-    ) |>
-    dplyr::ungroup() |>
-    dplyr::mutate(tot_var = .data$w_var + .data$bet_var * (1 + 1 / nimp))
-  return(pooled_est)
-}
-
-extract_mx <- function(fit,
-                       conf.int = FALSE,
-                       conf.level = conf.level) {
-  # Extract the relevant information from a MxModel object
-  # This function should be customized based on the structure of your lavaan objects
-  # and the specific information you need to extract for pooling
-
-  nimp <- length(fit)
-  pooled_est <- fit |>
-    purrr::map_dfr(RMediation::tidy, conf.int = conf.int, conf.level = conf.level, .id = "imp") |>
-    dplyr::select(
-      .data$term,
-      .data$estimate,
-      .data$std.error,
-      .data$statistic,
-      .data$p.value
-    ) |>
-    dplyr::group_by(.data$term) |>
-    dplyr::summarise(
-      q_est = mean(.data$estimate),
-      bet_var = var(.data$estimate),
-      w_var = sum(.data$std.error^2) / nimp
-    ) |>
-    dplyr::ungroup() |>
-    dplyr::mutate(tot_var = .data$w_var + .data$bet_var * (1 + 1 / nimp))
-  return(pooled_est)
-}
 
 pool_tidy <- function(object) {
   # Extract the relevant information from a lavaan object

@@ -277,15 +277,14 @@ extract_mx <- function(fit,
   return(pooled_est)
 }
 
-pool_tidy <- function(fit, conf.int = FALSE, conf.level = 0.95) {
+pool_tidy <- function(x, conf.int = FALSE, conf.level = 0.95, n_imputations = NA_integer_) {
   # Extract the relevant information from a lavaan object
   # This function should be customized based on the structure of your lavaan objects
   # and the specific information you need to extract for pooling
 
-  nimp <- length(fit)
-  fit |>
-    group_by(term) |>
-    summarise(est = mean(estimate), var_b = var(estimate), var_w = mean(std.error^2), var_tot = var_w + var_b * (1 + 1 / length(res1@results)), se = sqrt(var_tot), p.value = exp(mean(log(p.value)))) |>
+  x |>
+    dplyr::group_by(term) |>
+    dplyr::summarise(est = mean(estimate), var_b = var(estimate), var_w = mean(std.error^2), var_tot = var_w + var_b * (1 + 1 / n_imputations), se = sqrt(var_tot), p.value = exp(mean(log(p.value)))) |>
     dplyr::ungroup() |>
     dplyr::rename(estimate = est, std.error = se) |>
     dplyr::relocate(term, estimate, std.error, p.value, var_b, var_w, var_tot)

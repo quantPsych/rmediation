@@ -297,7 +297,7 @@ pool_cov <- function(object) {
   cov_between <- object@coef_df |>
     dplyr::select(-.imp) |>
     cov()
-  cov_within <- Reduce("+", object@cov_df)
+  cov_within <- Reduce("+", object@cov_df) / object@n_imputations
   cov_total <- cov_between * (1 + 1 / object@n_imputations) + cov_within
-  return(list(cov_tot = cov_tot, cov_b = cov_b, cov_w = cov_w))
+  return(list(cov_total = cov_total, cov_between = cov_between, cov_within = cov_within))
 }

@@ -188,16 +188,10 @@ setGeneric(
 #' @aliases pool_sem
 
 setMethod("pool_sem", "SemResults", function(object) {
-  pooledData <- NULL
-  if (object@method == "lavaan") {
+  fit <- object@results
+  if (object@method %in% c("lavaan" , "OpenMx")) {
     pooledData <-
-      extract_lav(object@results,
-        conf.int = object@conf.int,
-        conf.level = object@conf.level
-      )
-  } else if (object@method == "OpenMx") {
-    pooledData <-
-      extract_mx(object@results,
+      extract_table(fit,
         conf.int = object@conf.int,
         conf.level = object@conf.level
       )
@@ -208,9 +202,6 @@ setMethod("pool_sem", "SemResults", function(object) {
     ))
   }
 
-  if (is.null(pooledData)) {
-    stop("Failed to pool results. Please check your data and method.")
-  }
 
   PooledSEMResults(
     results = pooledData,

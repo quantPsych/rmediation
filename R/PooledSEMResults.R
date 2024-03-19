@@ -110,7 +110,7 @@ setValidity("PooledSEMResults", function(object) {
 
 ### ---------------------------------------------
 ### Method: pool_sem
-### Signature: object = "SemResults"
+### class: "SemResults"
 ### Returns: PooledSEMResults
 ### Role: Constructor, Pool results from multiple imputation analyses
 ### ---------------------------------------------

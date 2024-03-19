@@ -89,7 +89,7 @@ test_that("set_sem executes correctly with OpenMx models", {
     )
   )
   # Check that the result is as expected
-  expect_no_error(sem_data <- set_sem(mx_model, data = imputed_data))
+  expect_no_error(sem_data <- set_sem(imputed_data, mx_model))
   expect_s4_class(sem_data, "SemImputedData")
   expect_equal(sem_data@method, "OpenMx")
   expect_equal(sem_data@n_imputations, 3)

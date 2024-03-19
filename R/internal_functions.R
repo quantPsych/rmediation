@@ -33,7 +33,7 @@
 #' @noRd
 model_type <- function(model) {
     if (is.character(model)) {
-        if (is_lav_syntax(model)) {
+        if (is_lav_syntax(model, quiet = TRUE)) {
             return("lavaan_syntax")
         } else {
             stop("The provided model syntax is not a valid 'lavaan' syntax.")

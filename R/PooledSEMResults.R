@@ -277,14 +277,13 @@ extract_mx <- function(fit,
   return(pooled_est)
 }
 
-extract_table <- function(fit, conf.int = FALSE, conf.level = 0.95) {
+pool_tidy <- function(fit, conf.int = FALSE, conf.level = 0.95) {
   # Extract the relevant information from a lavaan object
   # This function should be customized based on the structure of your lavaan objects
   # and the specific information you need to extract for pooling
 
   nimp <- length(fit)
   fit |>
-    purrr::map_df(tidy, .id = "imp") |>
     group_by(term) |>
     summarise(est = mean(estimate), var_b = var(estimate), var_w = mean(std.error^2), var_tot = var_w + var_b * (1 + 1 / length(res1@results)), se = sqrt(var_tot), p.value = exp(mean(log(p.value)))) |>
     dplyr::ungroup() |>

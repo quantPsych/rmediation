@@ -106,6 +106,7 @@ setValidity("SemResults", function(object) {
 #' @importFrom purrr map_dfr
 #' @importFrom tibble tibble as_tibble
 #' @importFrom broom tidy
+#' @export
 #' @seealso [lavaan], [OpenMx]
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
 

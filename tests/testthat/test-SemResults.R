@@ -1,8 +1,8 @@
- library(testthat)
-#library(RMediation) # Replace with the actual name of your package
- library(lavaan)
- library(OpenMx)
- library(mice)
+library(testthat)
+# library(RMediation) # Replace with the actual name of your package
+library(lavaan)
+library(OpenMx)
+library(mice)
 
 # Mock data or a way to create SemResults objects for testing
 # Assuming `create_mock_SemResults` is a function you've defined to generate mock SemResults objects
@@ -119,7 +119,3 @@ test_that("pool_sem handles unsupported methods gracefully", {
   mock_unsupported_SemResults <- create_mock_SemResults(method = "unsupported_method")
   expect_error(pool_sem(mock_unsupported_SemResults), "Unsupported method specified")
 })
-
-# Assuming `pool_tidy` and `pool_cov` are internal and used only within `pool_sem`,
-# you may want to test them indirectly via `pool_sem` as shown above.
-# If direct testing is required, similar test structures can be created for them.

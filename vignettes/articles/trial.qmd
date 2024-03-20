@@ -458,3 +458,22 @@ pooled_results_OpenMx <- pool_sem(mock_OpenMx_SemResults)
 
 ```
 
+## testing idexing
+
+```{r}
+df_tidy1 <- tidy(res1@results[[1]])
+names(df_tidy1)
+
+idx_names <- which(names(df_tidy1) %in% c("std.error", "p.value", "conf.low", "conf.high")) |> print()
+
+## sunsitue names that contain "." with "_"
+names(df_tidy1)[idx_names] <- gsub("\\.", "\\_", names(df_tidy1)[idx_names])
+names(df_tidy1)
+
+
+
+sub("\.", "\_". names(df_tidy1)[idx_names])
+
+names(df_tidy1)[idx_names] <- c("std_error", "p_value", "conf_low", "conf_high")
+
+```

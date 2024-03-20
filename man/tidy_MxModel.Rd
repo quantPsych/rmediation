@@ -4,14 +4,14 @@
 \alias{tidy.MxModel}
 \title{Tidy an MxModel Object}
 \usage{
-tidy.MxModel(x, conf.int = FALSE, conf.level = 0.95, ...)
+\method{tidy}{MxModel}(x, conf_int = FALSE, conf_level = 0.95, ...)
 }
 \arguments{
 \item{x}{An object of class \link{MxModel} resulting from an SEM fit using OpenMx.}
 
-\item{conf.int}{Logical, whether to include confidence intervals in the output.}
+\item{conf_int}{Logical, whether to include confidence intervals in the output.}
 
-\item{conf.level}{The confidence level to use for the confidence intervals.}
+\item{conf_level}{The confidence level to use for the confidence intervals.}
 
 \item{...}{Additional arguments (currently not used).}
 }

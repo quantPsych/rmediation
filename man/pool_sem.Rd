@@ -19,11 +19,11 @@ A \code{data.frame} containing the pooled results of the SEM analyses. The colum
 \itemize{
 \item \code{term}: The name of the parameter being estimated.
 \item \code{estimate}: The pooled estimate of the parameter.
-\item \code{std.error}: The pooled standard error of the estimate.
+\item \code{std_error}: The pooled standard error of the estimate.
 \item \code{statistic}: The pooled test statistic (e.g., z-value, t-value).
-\item \code{p.value}: The pooled p-value for the test statistic.
-\item \code{conf.low}: The lower bound of the confidence interval for the estimate.
-\item \code{conf.high}: The upper bound of the confidence interval for the estimate.
+\item \code{p_value}: The pooled p-value for the test statistic.
+\item \code{conf_low}: The lower bound of the confidence interval for the estimate.
+\item \code{conf_high}: The upper bound of the confidence interval for the estimate.
 }
 }
 \description{
@@ -48,7 +48,7 @@ Refer to method-specific documentation for details on pooling process and assump
 pooled_results <- pool_sem(sem_results)
 
 # If you want to calculate and include confidence intervals at a 95\% level:
-pooled_results_ci <- pool_sem(sem_results, conf.int = TRUE, conf.level = 0.95)
+pooled_results_ci <- pool_sem(sem_results, conf_int = TRUE, conf_level = 0.95)
 }
 
 }

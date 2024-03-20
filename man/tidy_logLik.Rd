@@ -4,7 +4,7 @@
 \alias{tidy.logLik}
 \title{Creates a data.frame for a log-likelihood object}
 \usage{
-tidy.logLik(x, ...)
+\method{tidy}{logLik}(x, ...)
 }
 \arguments{
 \item{x}{x A log-likelihood object, typically returned by \link{logLik}.}

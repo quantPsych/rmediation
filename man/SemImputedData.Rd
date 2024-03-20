@@ -19,10 +19,10 @@ using either the \code{lavaan} or \code{OpenMx} packages.
 
 \item{\code{method}}{A character string indicating the SEM package to be used for analysis. It is a derived slot from the \code{model} slot, and it is set automatically based on the class of the \code{model} slot. The possible values are "lavaan" or "OpenMx".}
 
-\item{\code{conf.int}}{A logical value indicating whether confidence intervals are
+\item{\code{conf_int}}{A logical value indicating whether confidence intervals are
 included in the SEM results. Defaults to \code{FALSE}.}
 
-\item{\code{conf.level}}{A numeric value specifying the confidence level for
+\item{\code{conf_level}}{A numeric value specifying the confidence level for
 confidence intervals, which must be between 0 and 1. Defaults to 0.95.}
 
 \item{\code{original_data}}{A derived (from mids object) slot to store the original data used to create the imputed datasets.}

@@ -8,8 +8,8 @@
 #' @slot coef_df Data frame of coefficient estimates for each imputed dataset.
 #' @slot cov_df List of covariance matrices of coefficient estimates.
 #' @slot method SEM package used for analysis: 'lavaan' or 'OpenMx'.
-#' @slot conf.int Logical; if confidence intervals are included.
-#' @slot conf.level Confidence level for confidence intervals.
+#' @slot conf_int Logical; if confidence intervals are included.
+#' @slot conf_level Confidence level for confidence intervals.
 #' @import methods
 #' @exportClass SemResults
 #' @docType class
@@ -25,8 +25,8 @@ SemResults <- setClass(
     coef_df = "data.frame",
     cov_df = "list",
     method = "character",
-    conf.int = "logical",
-    conf.level = "numeric"
+    conf_int = "logical",
+    conf_level = "numeric"
   ),
   prototype = list(
     results = list(),
@@ -34,8 +34,8 @@ SemResults <- setClass(
     coef_df = data.frame(),
     cov_df = list(),
     method = "lavaan",
-    conf.int = FALSE,
-    conf.level = 0.95
+    conf_int = FALSE,
+    conf_level = 0.95
   )
 )
 
@@ -59,15 +59,15 @@ setValidity("SemResults", function(object) {
     messages <-
       c(messages, "method must be either 'lavaan' or 'OpenMx'.")
   }
-  if (!is.logical(object@conf.int) ||
-    length(object@conf.int) != 1) {
-    messages <- c(messages, "conf.int must be a single logical value.")
+  if (!is.logical(object@conf_int) ||
+    length(object@conf_int) != 1) {
+    messages <- c(messages, "conf_int must be a single logical value.")
   }
-  if (object@conf.int) {
-    if (!is.numeric(object@conf.level) ||
-      object@conf.level <= 0 || object@conf.level >= 1) {
+  if (object@conf_int) {
+    if (!is.numeric(object@conf_level) ||
+      object@conf_level <= 0 || object@conf_level >= 1) {
       messages <-
-        c(messages, "conf.level must be a numeric value between 0 and 1.")
+        c(messages, "conf_level must be a numeric value between 0 and 1.")
     }
   }
   # Add validations here based on the above corrections
@@ -129,11 +129,11 @@ setGeneric(
 #' @return A \code{data.frame} containing the pooled results of the SEM analyses. The column names adhere to tidy conventions and include the following columns:
 #'   - `term`: The name of the parameter being estimated.
 #'   - `estimate`: The pooled estimate of the parameter.
-#'   - `std.error`: The pooled standard error of the estimate.
+#'   - `std_error`: The pooled standard error of the estimate.
 #'   - `statistic`: The pooled test statistic (e.g., z-value, t-value).
-#'   - `p.value`: The pooled p-value for the test statistic.
-#'   - `conf.low`: The lower bound of the confidence interval for the estimate.
-#'   - `conf.high`: The upper bound of the confidence interval for the estimate.
+#'   - `p_value`: The pooled p-value for the test statistic.
+#'   - `conf_low`: The lower bound of the confidence interval for the estimate.
+#'   - `conf_high`: The upper bound of the confidence interval for the estimate.
 #'
 #' @examples
 #' \dontrun{
@@ -141,7 +141,7 @@ setGeneric(
 #' pooled_results <- pool_sem(sem_results)
 #'
 #' # If you want to calculate and include confidence intervals at a 95% level:
-#' pooled_results_ci <- pool_sem(sem_results, conf.int = TRUE, conf.level = 0.95)
+#' pooled_results_ci <- pool_sem(sem_results, conf_int = TRUE, conf_level = 0.95)
 #' }
 #'
 #' @export
@@ -167,8 +167,8 @@ setMethod("pool_sem", signature = "SemResults", function(object) {
     cov_between = cov_res$cov_between,
     cov_within = cov_res$cov_within,
     method = object@method,
-    conf.int = object@conf.int,
-    conf.level = object@conf.level
+    conf_int = object@conf_int,
+    conf_level = object@conf_level
   )
 })
 
@@ -205,18 +205,18 @@ setMethod("pool_tidy", signature = "SemResults", function(object) {
     dplyr::summarise(
       est = mean(.data$estimate),
       var_b = var(.data$estimate),
-      var_w = mean(.data$std.error^2),
+      var_w = mean(.data$std_error^2),
       var_tot = .data$var_w + .data$var_b * (1 + 1 / n_imputations),
       se = sqrt(.data$var_tot),
-      p.value = exp(mean(log(.data$p.value)))
+      p_value = exp(mean(log(.data$p_value)))
     ) |>
     dplyr::ungroup() |>
-    dplyr::rename(estimate = .data$est, std.error = .data$se) |>
+    dplyr::rename(estimate = .data$est, std_error = .data$se) |>
     dplyr::relocate(
       .data$term,
       .data$estimate,
-      .data$std.error,
-      .data$p.value,
+      .data$std_error,
+      .data$p_value,
       .data$var_b,
       .data$var_w,
       .data$var_tot

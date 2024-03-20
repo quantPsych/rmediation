@@ -34,34 +34,34 @@ create_mock_PooledSEMResults <- function(method) {
   # OpenMx method
   manifestVars <- c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "x8", "x9")
   latVar <- c("visual", "textual", "speed")
-  mx_model <- mxModel(
+  mx_model <- OpenMx::mxModel(
     "SimpleModel",
     type = "RAM",
     manifestVars = manifestVars,
     latentVars = latVar,
-    mxPath(
+    OpenMx::mxPath(
       from = "visual",
       to = c("x1", "x2", "x3"),
       values = 0.5,
       labels = "loadings"
     ),
-    mxPath(from = "textual", to = c("x4", "x5", "x6")),
-    mxPath(from = "speed", to = c("x7", "x8", "x9")),
-    mxPath(from = manifestVars, arrows = 2),
-    mxPath(
+    OpenMx::mxPath(from = "textual", to = c("x4", "x5", "x6")),
+    OpenMx::mxPath(from = "speed", to = c("x7", "x8", "x9")),
+    OpenMx::mxPath(from = manifestVars, arrows = 2),
+    OpenMx::mxPath(
       from = latVar,
       arrows = 2,
       free = FALSE,
       values = 1.0
     ),
-    mxPath(
+    OpenMx::mxPath(
       from = "one",
       to = manifestVars,
       arrows = 1,
       free = FALSE,
       values = 0
     ),
-    mxPath(
+    OpenMx::mxPath(
       from = "one",
       to = latVar,
       arrows = 1,
@@ -73,13 +73,23 @@ create_mock_PooledSEMResults <- function(method) {
   # Run the models
   # imp_sem <- set_sem(imputed_data, mx_model)
   res <- if (method == "lavaan") {
-    set_sem(imputed_data, lav_model, conf.int = FALSE, conf.level = 0.95) |> run_sem() |> pool_sem()
+    set_sem(imputed_data, lav_model, conf_int = FALSE, conf_level = 0.95) |>
+      run_sem() |>
+      pool_sem()
   } else if (method == "OpenMx") {
-    set_sem(imputed_data, mx_model, conf.int = FALSE, conf.level = 0.95) |> run_sem() |> pool_sem()
+    set_sem(imputed_data, mx_model, conf_int = FALSE, conf_level = 0.95) |>
+      run_sem() |>
+      pool_sem()
   }
 
   return(res)
 }
+
+set_sem(imputed_data, lav_model, conf_int = FALSE, conf_level = 0.95) |>
+  run_sem() |>
+  pool_sem()
+valid_object <- create_mock_PooledSEMResults("lavaan")
+expect_true(is(valid_object, "PooledSEMResults"))
 
 test_that("PooledSEMResults validity checks work", {
   # Assuming `create_mock_PooledSEMResults` is a function you'll define that creates valid mock objects
@@ -88,7 +98,7 @@ test_that("PooledSEMResults validity checks work", {
 
   # Example of an invalid test: missing required column in tidy_table
   invalid_object_missing_column <- valid_object
-  invalid_object_missing_column@tidy_table <- invalid_object_missing_column@tidy_table[ , -which(names(invalid_object_missing_column@tidy_table) == "estimate")]
+  invalid_object_missing_column@tidy_table <- invalid_object_missing_column@tidy_table[, -which(names(invalid_object_missing_column@tidy_table) == "estimate")]
   expect_error(is(invalid_object_missing_column, "PooledSEMResults"))
 
   # Add more tests as needed

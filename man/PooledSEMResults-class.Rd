@@ -17,10 +17,10 @@ for each parameter estimated across multiple imputations.
 \itemize{
 \item \code{term}: The name of the parameter being estimated.
 \item \code{estimate}: The pooled estimate of the parameter.
-\item \code{std.error}: The pooled standard error of the estimate.
-\item \code{p.value}: The pooled p-value for the test statistic.
-\item \code{conf.low}: The lower bound of the confidence interval for the estimate.
-\item \code{conf.high}: The upper bound of the confidence interval for the estimate.
+\item \code{std_error}: The pooled standard error of the estimate.
+\item \code{p_value}: The pooled p-value for the test statistic.
+\item \code{conf_low}: The lower bound of the confidence interval for the estimate.
+\item \code{conf_high}: The upper bound of the confidence interval for the estimate.
 }}
 
 \item{\code{cov_total}}{matrix The pooled total covariance matrix of the parameter estimates.}
@@ -31,9 +31,9 @@ for each parameter estimated across multiple imputations.
 
 \item{\code{method}}{character The method used for SEM analysis ('lavaan' or 'OpenMx').}
 
-\item{\code{conf.int}}{logical Whether to calculate confidence intervals for the pooled estimates. default is \code{FALSE}.}
+\item{\code{conf_int}}{logical Whether to calculate confidence intervals for the pooled estimates. default is \code{FALSE}.}
 
-\item{\code{conf.level}}{numeric The confidence level used in the interval calculation. default is \code{0.95}.}
+\item{\code{conf_level}}{numeric The confidence level used in the interval calculation. default is \code{0.95}.}
 }}
 
 \author{

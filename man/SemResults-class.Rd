@@ -21,9 +21,9 @@ performed on multiply imputed datasets. Supports \code{lavaan} and \code{OpenMx}
 
 \item{\code{method}}{SEM package used for analysis: 'lavaan' or 'OpenMx'.}
 
-\item{\code{conf.int}}{Logical; if confidence intervals are included.}
+\item{\code{conf_int}}{Logical; if confidence intervals are included.}
 
-\item{\code{conf.level}}{Confidence level for confidence intervals.}
+\item{\code{conf_level}}{Confidence level for confidence intervals.}
 }}
 
 \author{

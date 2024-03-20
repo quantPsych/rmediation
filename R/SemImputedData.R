@@ -7,9 +7,9 @@
 #' @slot data An object of class `mids` from the `mice` package, representing multiply imputed datasets.
 #' @slot model A `lavaan` or `OpenMx` model syntax to be used for SEM analysis. For `lavaan` models, the syntax should be a character string as described in [lavaan::model.syntax]. For `OpenMx` models, the syntax should be an [mxModel] object with or without [mxData()] specified; that is, `mxModel` syntax can be without data specified. In addition, both `lavaan` and `OpenMx` models can be a fitted model object in the respective package.
 #' @slot method A character string indicating the SEM package to be used for analysis. It is a derived slot from the `model` slot, and it is set automatically based on the class of the `model` slot. The possible values are "lavaan" or "OpenMx".
-#' @slot conf.int A logical value indicating whether confidence intervals are
+#' @slot conf_int A logical value indicating whether confidence intervals are
 #'   included in the SEM results. Defaults to `FALSE`.
-#' @slot conf.level A numeric value specifying the confidence level for
+#' @slot conf_level A numeric value specifying the confidence level for
 #'   confidence intervals, which must be between 0 and 1. Defaults to 0.95.
 #' @slot original_data A derived (from mids object) slot to store the original data used to create the imputed datasets.
 #' @slot n_imputations A derived (from mids object) slot to store the number of imputations used to create the imputed datasets.
@@ -26,8 +26,8 @@ SemImputedData <- setClass("SemImputedData",
     data = "ANY", # Ensuring 'data' is specifically a 'mids' object
     model = "ANY", # 'lavaan' or 'OpenMx' model syntax
     method = "character", # 'lavaan' or 'OpenMx',
-    conf.int = "logical", # Whether to include confidence intervals in the SEM results
-    conf.level = "numeric", # The confidence level for confidence intervals
+    conf_int = "logical", # Whether to include confidence intervals in the SEM results
+    conf_level = "numeric", # The confidence level for confidence intervals
     original_data = "data.frame", # The original data used to create the imputed datasets
     n_imputations = "numeric", # The number of imputations used to create the imputed datasets
     fit_model = "ANY" # The fitted SEM model object
@@ -36,8 +36,8 @@ SemImputedData <- setClass("SemImputedData",
     data = NULL,
     model = NULL,
     method = "lavaan",
-    conf.int = FALSE,
-    conf.level = 0.95,
+    conf_int = FALSE,
+    conf_level = 0.95,
     original_data = NULL,
     n_imputations = NULL,
     fit_model = NULL
@@ -62,12 +62,12 @@ setValidity("SemImputedData", function(object) {
   #   messages <- c(messages, "'method' must be either 'lavaan' or 'OpenMx'.")
   # }
 
-  if (!is.logical(object@conf.int) || length(object@conf.int) != 1) {
-    messages <- c(messages, "'conf.int' must have single logical value.")
+  if (!is.logical(object@conf_int) || length(object@conf_int) != 1) {
+    messages <- c(messages, "'conf_int' must have single logical value.")
   }
 
-  if (!is.numeric(object@conf.level) || length(object@conf.level) != 1 || object@conf.level < 0 || object@conf.level > 1) {
-    messages <- c(messages, "'conf.level' must be a single numeric value between 0 and 1.")
+  if (!is.numeric(object@conf_level) || length(object@conf_level) != 1 || object@conf_level < 0 || object@conf_level > 1) {
+    messages <- c(messages, "'conf_level' must be a single numeric value between 0 and 1.")
   }
   # if (!inherits(object@fit_model, "lavaan") && !inherits(object@fit_model, "MxModel")) {
   #   messages <- c(messages, "'fit_model' must be a 'lavaan' or 'MxModel' object.")
@@ -136,9 +136,9 @@ setMethod("run_sem", "SemImputedData", function(object, ...) {
 
   # Dynamically select the appropriate function based on the SEM method.
   sem_fn <- switch(tolower(object@method),
-                   "lavaan" = lav_mice,
-                   "openmx" = mx_mice,
-                   stop("Unsupported method specified: ", object@method)
+    "lavaan" = lav_mice,
+    "openmx" = mx_mice,
+    stop("Unsupported method specified: ", object@method)
   )
 
   # Run the SEM model on the imputed datasets
@@ -146,27 +146,124 @@ setMethod("run_sem", "SemImputedData", function(object, ...) {
 
   # Extract the results from the imputed datasets
   vcov_sem <- switch(tolower(object@method),
-                     "lavaan" = vcov_lav,
-                     "openmx" = vcov,
-                     stop("Unsupported method specified: ", object@method)
+    "lavaan" = vcov_lav,
+    "openmx" = vcov,
+    stop("Unsupported method specified: ", object@method)
   )
 
   coef_sem <- switch(tolower(object@method),
-                     "lavaan" = lavaan::coef,
-                     "openmx" = coef,
-                     stop("Unsupported method specified: ", object@method)
+    "lavaan" = lavaan::coef,
+    "openmx" = coef,
+    stop("Unsupported method specified: ", object@method)
   )
   # Extract the tidy results from the estimated SEM models
   estimate_df <- purrr::map_dfr(sem_results, tidy, .id = ".imp") # long tidy table of estimates across imputed datasets
+  # check if the names of estimate_df are std.error, p.value, conf.low, conf.high. If yes, then change only thoses names to std_error, p_value, conf_low, conf_high
+  if (all(c("std.error", "p.value", "conf.low", "conf.high") %in% names(estimate_df))) {
+    idx_names <- which(names(estimate_df) %in% c("std.error", "p.value", "conf.low", "conf.high"))
+    # sunsitue names that contain "." with "_"
+    names(estimate_df)[idx_names] <- gsub("\\.", "\\_", names(estimate_df)[idx_names])
+  }
+
   # Extract the coefficients from the estimated SEM models
   coef_df <- purrr::map_dfr(sem_results, coef_sem, .id = ".imp") # long table of coefficients across imputed datasets
   # Extract the sampling covariance (within covariance) matrices from the estimated SEM models
   cov_df <- purrr::map(sem_results, vcov_sem) # list coefficients estimates sampling covariances across imputed datasets
 
   # Create a new SemResults object
-  SemResults(results = sem_results, estimate_df = estimate_df, coef_df = coef_df, cov_df = cov_df, method = object@method, conf.int = object@conf.int, conf.level = object@conf.level)
+  SemResults(results = sem_results, estimate_df = estimate_df, coef_df = coef_df, cov_df = cov_df, method = object@method, conf_int = object@conf_int, conf_level = object@conf_level)
 })
 
+#' Create SemImputedData Object
+#'
+#' Constructs a new `SemImputedData` object for structural equation modeling (SEM) analysis
+#' on multiply imputed datasets. This function ensures that the provided data is a [mice::mids]
+#' object from the `mice` package and that the specified SEM analysis method is supported.
+#'
+#' @param data A `mids` object from the `mice` package containing multiply imputed datasets.
+#' @param model A `lavaan` or `OpenMx` model syntax to be used for SEM analysis. For `lavaan` models, the syntax should be a character string as described in [lavaan::model.syntax]. For `OpenMx` models, the syntax should be an [mxModel] object with or without [mxData()] specified; that is, `mxModel` syntax can be without data specified. In addition, both `lavaan` and `OpenMx` models can be a fitted model object in the respective package.
+#' @param conf_int A logical value indicating whether confidence intervals are
+#'   included in the SEM results. Defaults to `FALSE`.
+#' @param conf_level A numeric value specifying the confidence level for
+#'  confidence intervals, which must be between 0 and 1. Defaults to 0.95.
+#'  If `conf_int` is `FALSE`, this argument is ignored.
+#'
+#' @return An object of class SemImputedData. See [SemImputedData] for the details of the slots.
+#'
+#' @details All the arguments `data`, `method`, `conf_int`, and `conf_level` are used to specify the SEM analysis. `set_sem` is a constructor function for `SemImputedData` class. These methods are used as constructors for the `SemImputedData` class.
+#' @usage set_sem(data, method = "lavaan", conf_int = FALSE, conf_level 0.95)
+#' @seealso  [SemImputedData] [mice::mids] [lavaan] [OpenMx]
+#' @aliases set_sem set_sem-methods
+#' @examples
+#' \dontrun{
+#' data("HolzingerSwineford1939", package = "lavaan")
+#' df_complete <- na.omit(HolzingerSwineford1939)
+#' amp <- mice::ampute(df_complete, prop = 0.2, mech = "MAR")
+#' imputed_data <- mice::mice(amp$amp, m = 3, maxit = 3, seed = 12345, printFlag = FALSE)
+#' sem_data <- set_sem(data = imputed_data, method = "lavaan")
+#' str(sem_data)
+#' }
+#' @rdname set_sem
+#' @export
+
+setGeneric("set_sem", function(data, model, conf_int = FALSE, conf_level = 0.95) standardGeneric("set_sem"),
+  signature = "data"
+)
+
+#' @rdname set_sem
+#' @export
+
+setMethod("set_sem", "mids", function(data, model, conf_int = FALSE, conf_level = 0.95) {
+  if (missing(data)) {
+    stop("Argument 'data' is missing.", call. = FALSE)
+  }
+
+  if (missing(model)) {
+    stop("Argument 'model' is missing.", call. = FALSE)
+  }
+
+  if (!inherits(data, "mids")) {
+    stop("'data' must be a 'mids' object from the 'mice' package.",
+      call. = FALSE
+    )
+  }
+
+  if (!all(model_type(model) %in% c("lavaan_syntax", "lavaan", "MxModel", "OpenMx"))) {
+    stop("The model must be a character string, a lavaan model object, or an OpenMx model object.")
+  }
+
+  if (!is.logical(conf_int) || length(conf_int) != 1) {
+    stop("'conf_int' must be a single logical value (TRUE or FALSE).",
+      call. = FALSE
+    )
+  }
+
+  if (conf_int) {
+    if (!is.numeric(conf_level) ||
+      length(conf_level) != 1 || conf_level < 0 || conf_level > 1) {
+      stop("'conf_level' must be a single numeric value between 0 and 1.",
+        call. = FALSE
+      )
+    }
+  }
+
+  n_imputations <- data$m # number of imputations
+  original_data <- mice::complete(data, action = 0L) # original data
+  fit_model0 <- fit_model(model, original_data)
+  method <- model_type(fit_model0)
+  method <- ifelse(all(method %in% c("MxModel", "OpenMx")), "OpenMx", "lavaan")
+
+  SemImputedData(
+    data = data,
+    model = model,
+    method = method,
+    conf_int = conf_int,
+    conf_level = conf_level,
+    original_data = original_data,
+    n_imputations = n_imputations,
+    fit_model = fit_model0
+  )
+})
 
 ### ----------------------------------------------------------------------------
 ### Helper internal functions for run_sem method
@@ -179,14 +276,6 @@ lav_mice <- function(data, model, ...) {
 }
 
 mx_mice <- function(data, model, ...) {
-  # Ensure 'mxModel' is an OpenMx model object
-  if (!inherits(model, "MxModel")) {
-    stop("'model' must be an 'MxModel' object from the 'OpenMx' package.")
-  }
-  verified <- OpenMx::imxVerifyModel(model)
-  if (!verified) {
-    stop("The mxModel object failed verification.")
-  }
   # Extract complete imputed datasets
   data_complete <- mice::complete(data, action = "all")
   # Fit the model to each imputed dataset

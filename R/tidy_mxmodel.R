@@ -3,8 +3,8 @@
 #' Extracts parameter estimates from an [MxModel] from the [OpenMx] model and formats them into a tidy dataframe.
 #'
 #' @param x An object of class [MxModel] resulting from an SEM fit using OpenMx.
-#' @param conf.int Logical, whether to include confidence intervals in the output.
-#' @param conf.level The confidence level to use for the confidence intervals.
+#' @param conf_int Logical, whether to include confidence intervals in the output.
+#' @param conf_level  The confidence level to use for the confidence intervals.
 #' @param ... Additional arguments (currently not used).
 #' @return A tibble with one row per parameter and columns for parameter names, estimates,
 #'         standard errors, and optionally confidence intervals.
@@ -44,8 +44,8 @@
 #' }
 tidy.MxModel <-
   function(x,
-           conf.int = FALSE,
-           conf.level = 0.95,
+           conf_int = FALSE,
+           conf_level = 0.95,
            ...) {
     # Ensure the input is an OpenMx model
     if (!inherits(x, "MxModel")) {
@@ -60,21 +60,21 @@ tidy.MxModel <-
         term = .data$name,
         label = .data$col,
         estimate = .data$Estimate,
-        std.error = .data$Std.Error
+        std_error = .data$Std.Error
       ) |>
       dplyr::mutate(
-        statistic = .data$estimate / .data$std.error,
+        statistic = .data$estimate / .data$std_error,
         p.value = 2 * pnorm(abs(.data$statistic), lower.tail = FALSE)
       ) |>
       tibble::as_tibble()
 
     # Add confidence intervals if requested
-    if (conf.int) {
-      q <- qnorm((1 + conf.level) / 2)
+    if (conf_int) {
+      q <- qnorm((1 + conf_level) / 2)
       tidy_df <- tidy_df |>
         dplyr::mutate(
-          conf.low = .data$estimate - q * .data$std.error,
-          conf.high = .data$estimate + q * .data$std.error
+          conf_low = .data$estimate - q * .data$std_error,
+          conf_high = .data$estimate + q * .data$std_error
         ) |>
         tibble::as_tibble()
     }

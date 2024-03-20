@@ -24,11 +24,10 @@ test_that("run_sem executes correctly with lavaan models", {
  speed   =~ x7 + x8 + x9
  "
   sem_data <-
-    set_sem(model, data = imputed_data, conf.int = TRUE, conf.level = 0.95)
+    set_sem(model, data = imputed_data, conf_int = TRUE, conf_level = 0.95)
   # result <- run_sem(sem_data)
   expect_no_error(result <- run_sem(sem_data))
   #   expect_no_error(lapply(result@results, summary))
-
   # Check that the result is as expected
   # This will depend on the output format of run_sem
   # Example:
@@ -65,24 +64,24 @@ test_that("run_sem executes correctly with OpenMx models", {
     type = "RAM",
     manifestVars = manifestVars,
     latentVars = latVar,
-    mxPath(from = "visual", to = c("x1", "x2", "x3")),
-    mxPath(from = "textual", to = c("x4", "x5", "x6")),
-    mxPath(from = "speed", to = c("x7", "x8", "x9")),
-    mxPath(from = manifestVars, arrows = 2),
-    mxPath(
+    OpenMx::mxPath(from = "visual", to = c("x1", "x2", "x3")),
+    OpenMx::mxPath(from = "textual", to = c("x4", "x5", "x6")),
+    OpenMx::mxPath(from = "speed", to = c("x7", "x8", "x9")),
+    OpenMx::mxPath(from = manifestVars, arrows = 2),
+    OpenMx::mxPath(
       from = latVar,
       arrows = 2,
       free = FALSE,
       values = 1.0
     ),
-    mxPath(
+    OpenMx::mxPath(
       from = "one",
       to = manifestVars,
       arrows = 1,
       free = FALSE,
       values = 0
     ),
-    mxPath(
+    OpenMx::mxPath(
       from = "one",
       to = latVar,
       arrows = 1,

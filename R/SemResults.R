@@ -103,12 +103,6 @@ setValidity("SemResults", function(object) {
 #'
 #' @return `PooledSEMResults` object containing pooled SEM analysis results.
 #' @details Refer to method-specific documentation for details on pooling process and assumptions.
-#' @examples
-#' \dontrun{
-#' # Assuming `sem_results` is a `SemResults` object with `lavaan` model fits:
-#' pooled_results <- pool_sem(sem_results, conf.int = TRUE, conf.level = 0.95)
-#' print(pooled_results)
-#' }
 #' @importFrom dplyr mutate select rename contains group_by summarise ungroup
 #' @importFrom purrr map_dfr
 #' @importFrom tibble tibble as_tibble

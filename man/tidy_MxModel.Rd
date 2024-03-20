@@ -4,7 +4,7 @@
 \alias{tidy.MxModel}
 \title{Tidy an MxModel Object}
 \usage{
-\method{tidy}{MxModel}(x, conf.int = FALSE, conf.level = 0.95, ...)
+tidy.MxModel(x, conf.int = FALSE, conf.level = 0.95, ...)
 }
 \arguments{
 \item{x}{An object of class \link{MxModel} resulting from an SEM fit using OpenMx.}

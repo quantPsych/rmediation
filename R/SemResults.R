@@ -99,7 +99,6 @@ setValidity("SemResults", function(object) {
 #' It calculates pooled estimates, standard errors, confidence intervals, and more.
 #'
 #' @param object `SemResults` object with SEM analysis results.
-#' @param ... Additional arguments for extensions.
 #'
 #' @return `PooledSEMResults` object containing pooled SEM analysis results.
 #' @details Refer to method-specific documentation for details on pooling process and assumptions.
@@ -112,22 +111,21 @@ setValidity("SemResults", function(object) {
 
 setGeneric(
   "pool_sem",
-  function(object,
-           ...) {
+  function(object) {
     standardGeneric("pool_sem")
   }
 )
 
 #' Pool SEM Results from Multiple Imputations
 #'
-#' This function pools the results of structural equation modeling (SEM) analyses
-#' performed on multiple imputed datasets. It supports pooling for models analyzed
-#' with either the \code{lavaan} or \code{OpenMx} package. The function extracts and pools
-#' relevant statistics (e.g., estimates, standard errors) across all imputations,
-#' considering the specified confidence interval settings.
+#' This function pools the results of structural equation modeling (SEM)
+#' analyses performed on multiple imputed datasets.
+#' It supports pooling for models analyzed with either the \code{lavaan}
+#' or \code{OpenMx} package.  The function extracts and pools
+#' relevant statistics (e.g., estimates, standard errors) across
+#' all imputations, considering the specified confidence interval settings.
 #'
-#' @return A \code{data.frame} containing the pooled results of the SEM analyses. The
-#'  column names adhere to tidy conventions and include the following columns:
+#' @return A \code{data.frame} containing the pooled results of the SEM analyses. The column names adhere to tidy conventions and include the following columns:
 #'   - `term`: The name of the parameter being estimated.
 #'   - `estimate`: The pooled estimate of the parameter.
 #'   - `std.error`: The pooled standard error of the estimate.
@@ -149,7 +147,7 @@ setGeneric(
 #' @rdname pool_sem
 #' @aliases pool_sem
 
-setMethod("pool_sem", signature = "SemResults", function(object, ...) {
+setMethod("pool_sem", signature = "SemResults", function(object) {
   if (!object@method %in% c("lavaan", "OpenMx")) {
     stop(
       "Unsupported method specified in SemResults: ",
@@ -179,6 +177,7 @@ setMethod("pool_sem", signature = "SemResults", function(object, ...) {
 
 #' Pool Tidy Results
 #'
+#' This function extracts and pools relevant statistics (e.g., estimates, standard errors) across all imputations, considering the specified confidence interval settings, and returns a tidy data frame.
 #' @param object `SemResults` object with SEM analysis results.
 #' @return A `data.frame` containing the pooled results of the SEM analyses.
 #' @details This function extracts and pools relevant statistics (e.g., estimates, standard errors) across all imputations, considering the specified confidence interval settings.
@@ -226,6 +225,7 @@ setMethod("pool_tidy", signature = "SemResults", function(object) {
 
 #' Pool Covariance Matrices
 #'
+#' This function extracts and pools relevant covariance matrices across all imputations. It returns a list of covariance matrices.
 #' @param object `SemResults` object with SEM analysis results.
 #' @return A list of covariance matrices.
 #' @details This function extracts and pools relevant covariance matrices across all imputations.

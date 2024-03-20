@@ -63,7 +63,7 @@ setValidity("SemResults", function(object) {
     length(object@conf.int) != 1) {
     messages <- c(messages, "conf.int must be a single logical value.")
   }
-  if (object.conf.int) {
+  if (object@conf.int) {
     if (!is.numeric(object@conf.level) ||
       object@conf.level <= 0 || object@conf.level >= 1) {
       messages <-

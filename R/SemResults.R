@@ -170,10 +170,11 @@ setMethod("pool_sem", signature = "SemResults", function(object) {
     conf.level = object@conf.level
   )
 })
-### ---------------------------------------------
+
+### ============================================================================
 ### Helper functions for pooling results from lavaan and OpenMx objects
 ### These functions should be customized based on the structure of your lavaan and OpenMx objects and the specific information you need to extract for pooling.
-### ---------------------------------------------
+### ============================================================================
 
 #' Pool Tidy Results
 #'

@@ -112,3 +112,52 @@ class PooledSEMResults {
 
 SemResults --> "1" PooledSEMResults : pools -->
 @enduml
+
+
+@startuml
+
+' Define classes
+class SemResults {
+    +results: list
+    +estimate_df: data.frame
+    +coef_df: data.frame
+    +cov_df: list
+    +method: character
+    +conf_int: logical
+    +conf_level: numeric
+}
+
+class PooledSEMResults {
+    +tidy_table: data.frame
+    +cov_total: matrix
+    +cov_between: matrix
+    +cov_within: matrix
+    +method: character
+    +conf.int: logical
+    +conf.level: numeric
+}
+
+' Define interfaces for methods
+interface pool_sem {
+    +pool_sem(SemResults): PooledSEMResults
+}
+
+interface pool_tidy {
+    +pool_tidy(SemResults): data.frame
+}
+
+interface pool_cov {
+    +pool_cov(SemResults): list
+}
+
+' Relationships
+SemResults -down-> pool_sem : uses > 
+pool_sem .down.> PooledSEMResults : returns >
+
+SemResults ..> pool_tidy : uses >
+pool_tidy ..> data.frame : returns >
+
+SemResults ..> pool_cov : uses >
+pool_cov ..> list : returns >
+
+@enduml

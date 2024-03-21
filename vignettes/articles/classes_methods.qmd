@@ -1,5 +1,5 @@
 ---
-title: "Classes and Methods"
+title: "Mediation Package Documentat Classes and Methods"
 format: 
   html:
     fig-width: 8
@@ -20,13 +20,95 @@ editor:
 ---
 
 ```{r}
+#| label: setup
+#| include: false
 knitr::opts_chunk$set(
     collapse = TRUE,
     comment = "#>"
 )
 ```
 
+# Overview
 
-```{r}
-library(RMediation)
-```
+The `RMediation` package is designed for Structural Equation Modeling (SEM) analysis across multiply imputed datasets. It supports pooling SEM analysis results from `lavaan` and `OpenMx` models, calculating pooled estimates, standard errors, confidence intervals, and more.
+
+# Classes and Methods
+
+## Classes
+
+### `SemResults`
+
+An S4 class for storing the results of SEM analysis performed on multiply imputed datasets. It accommodates results from `lavaan`, `OpenMx`, or potentially other SEM software.
+
+- **Slots**:
+    - `results`: A list of SEM model fits for each imputed dataset.
+    - `estimate_df`: Data frame of parameter estimates and standard errors.
+    - `coef_df`: Data frame of coefficient estimates for each imputed dataset.
+    - `cov_df`: List of covariance matrices of coefficient estimates.
+    - `method`: SEM package used for analysis ('lavaan' or 'OpenMx').
+    - `conf_int`: Logical; if confidence intervals are included.
+    - `conf_level`: Confidence level for confidence intervals.
+
+### `PooledSEMResults`
+
+An S4 class representing pooled results from SEM analysis across multiple imputations or datasets.
+
+- **Slots**:
+    - `tidy_table`: A data frame containing the pooled results of the SEM analyses.
+    - `cov_total`: The pooled total covariance matrix of the parameter estimates.
+    - `cov_between`: The pooled between-imputation covariance matrix of the parameter estimates.
+    - `cov_within`: The pooled within-imputation covariance matrix of the parameter estimates.
+    - `method`: The method used for SEM analysis ('lavaan' or 'OpenMx').
+    - `conf.int`: Whether to calculate confidence intervals for the pooled estimates.
+    - `conf.level`: The confidence level used in the interval calculation.
+
+## Methods
+
+### `pool_sem`
+
+A generic function to pool SEM analysis results from multiple datasets or imputations.
+
+- **Signature**: `SemResults`
+- **Returns**: `PooledSEMResults`
+
+### Helper Functions
+
+- `pool_tidy`: Extracts and pools relevant statistics across all imputations.
+- `pool_cov`: Extracts and pools relevant covariance matrices across all imputations.
+
+# UML Diagram
+
+To visualize the relationships between the classes and methods in the RMediation package, consider using a UML diagramming tool. A typical representation would show:
+
+- The `SemResults` class with arrows pointing to the `pool_sem` method, indicating that this method operates on objects of this class.
+- The `PooledSEMResults` class as the output of the `pool_sem` method.
+- Helper functions `pool_tidy` and `pool_cov` could be represented as associated with the `pool_sem` method, indicating their role in the pooling process.
+
+## Generating a UML Diagram
+
+You can use UML diagramming tools like PlantUML, Lucidchart, or others to create a visual representation. Here is a simple example in PlantUML syntax:
+
+
+@startuml
+class SemResults {
+    +results: list
+    +estimate_df: data.frame
+    +coef_df: data.frame
+    +cov_df: list
+    +method: character
+    +conf_int: logical
+    +conf_level: numeric
+}
+
+class PooledSEMResults {
+    +tidy_table: data.frame
+    +cov_total: matrix
+    +cov_between: matrix
+    +cov_within: matrix
+    +method: character
+    +conf.int: logical
+    +conf.level: numeric
+}
+
+SemResults --> "1" PooledSEMResults : pools -->
+@enduml

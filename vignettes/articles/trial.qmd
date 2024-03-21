@@ -183,26 +183,9 @@ process_model_results <- function(model_results) {
 # within_cov_matrix <- result_objects$within_covariance_matrix
 ```
 
-
-```{r}
-#| eval = FALSE
-data_complete <- mice::complete(imputed_data, action = "all")
-
-str(data_complete)
-
-sem_results <-
-    data_complete |> purrr::map(lavaan::sem, model = model)
-
-class(sem_results)
-names(sem_results)
-```
-
 # OpenMx Models
 
 ```{r}
-# Load OpenMx package
-library(OpenMx)
-
 # Define your model
 # For example, let's consider a simple SEM with two latent variables and observed variables
 # Note: This is just an illustrative example; replace it with your actual model specification
@@ -226,13 +209,15 @@ model_mx <- mxModel("Simple SEM",
 #
 # Fit the model
 fit_mx <- mxRun(model_mx)
-RMediation::tidy(fit_mx)
+tidy(fit_mx)
 
 imxVerifyModel(model_mx)
 
 slotNames(fit_mx)
 
 fit_mx@.wasRun
+
+is_fit(fit_mx)
 ```
 
 
@@ -255,19 +240,13 @@ model1 <- mxModel("good model",
 
 inherits(model1, "try-error")
 imxVerifyModel(model1)
-
-# Check model syntax
-try(check_model <- imxVerifyModel(model1))
-
-str(check_model)
-
-model1@.wasRun
+is_fit(model1)
 ```
 
 # Switch function
 
 ```{r}
-method <- "OpenMx"
+method <- "openmx"
 vcov_sem <- switch(tolower(method),
     "lavaan" = lavaan::vcov,
     "openmx" = vcov,
@@ -275,7 +254,7 @@ vcov_sem <- switch(tolower(method),
 )
 
 coef_sem <- switch(tolower(method),
-    "lavaan" = lavaan::coef,
+    "lavaan" = coef,
     "openmx" = coef,
     stop("Unsupported method specified: ", method)
 )

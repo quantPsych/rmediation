@@ -54,12 +54,6 @@ model_lav <- "
  speed   =~ x7 + x8 + x9 "
 ```
 
-```{r}
-fit_model(model_lav, data_with_missing)
-fit_model(fit, data_with_missing)
-fit_model(fitempty, data_with_missing)
-```
-
 
 ```{r}
 #| label = "lavaan_options"
@@ -73,16 +67,16 @@ slotNames(fit0)
 
 fit0@Options$do.fit
 
-fit@ParTable
-fit@vcov
-parTable(fit)
+fit_lav@ParTable
+fit_lav@vcov
+parTable(fit_lav)
 parTable("vcov")
 
-lavInspect(fit, what = "data", add.labels = TRUE) |> head()
-lavNames(fit)
-lavInspect(fit, what = "vcov")
+lavInspect(fit_lav, what = "data", add.labels = TRUE) |> head()
+lavNames(fit_lav)
+lavInspect(fit_lav, what = "vcov")
 lavTech(fit, what = "vcov", add.labels = TRUE) # This is useful
-lav_opts <- lavInspect(fit0, what = "options", add.labels = TRUE)
+lav_opts <- lavInspect(fit_lav, what = "options", add.labels = TRUE)
 lav_opts$test
 lav_opts$do.fit
 ```

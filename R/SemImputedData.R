@@ -120,12 +120,12 @@ setGeneric(
 #' data_with_missing <- amp$amp
 #' # Perform multiple imputation
 #' imputed_data <- mice::mice(data_with_missing, m = 3, maxit = 3, seed = 12345, printFlag = FALSE)
-#' sem_data <- set_sem(data = imputed_data, method = "lavaan")
 #' model <- "
 #'  visual  =~ x1 + x2 + x3
 #'  textual =~ x4 + x5 + x6
 #'  speed   =~ x7 + x8 + x9
 #'  "
+#' #' sem_data <- set_sem(imputed_data, model)
 #' ## Note that the model is specified as a string
 #' res <- run_sem(sem_data, model)
 #' }

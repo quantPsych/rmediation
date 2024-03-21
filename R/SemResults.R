@@ -157,9 +157,6 @@ setGeneric(
 #' ## Note that the model is specified as a string
 #' res_results <- run_sem(sem_data, model)
 #' pooled_results <- pool_sem(sem_results)
-#'
-#' # If you want to calculate and include confidence intervals at a 95% level:
-#' pooled_results_ci <- pool_sem(sem_results, conf_int = TRUE, conf_level = 0.95)
 #' }
 #'
 #' @export

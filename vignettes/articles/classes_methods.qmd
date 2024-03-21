@@ -86,4 +86,5 @@ To visualize the relationships between the classes and methods in the RMediation
 
 ## Generating a UML Diagram
 
-You can use UML diagramming tools like PlantUML, Lucidchart, or others to create a visual representation. Here is a simple example in PlantUML syntax: |> 
+You can use UML diagramming tools like PlantUML, Lucidchart, or others to create a visual representation. Here is a simple example in PlantUML syntax: 
+

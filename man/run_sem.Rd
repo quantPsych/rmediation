@@ -25,13 +25,6 @@ on multiply imputed datasets contained within a \linkS4class{SemImputedData} obj
 }
 \examples{
 \dontrun{
-if (requireNamespace("lavaan", quietly = TRUE) && requireNamespace("mice", quietly = TRUE)) { # Check if the required packages are available
-library(lavaan)
-library(mice) }
-else {
-install.packages("lavaan")
-install.packages("mice")
-}
 library(RMediation)
 # Load Holzinger and Swineford (1939) dataset
 data("HolzingerSwineford1939", package = "lavaan")
@@ -46,9 +39,10 @@ model <- "
  textual =~ x4 + x5 + x6
  speed   =~ x7 + x8 + x9
  "
-#' sem_data <- set_sem(imputed_data, model)
-## Note that the model is specified as a string
-res <- run_sem(sem_data, model)
+res_sem <- imputed_data |>
+  set_sem(model) |>
+  run_sem()
+res_sem@estimate_df # long tidy table of estimates across imputed datasets
 }
 }
 \author{

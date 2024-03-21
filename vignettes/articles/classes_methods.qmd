@@ -1,0 +1,28 @@
+---
+title: "Classes and Methods"
+format: 
+  html:
+    fig-width: 8
+    fig-height: 4
+    code-fold: false
+    highlight: tango
+execute: 
+  eval: true
+  message: false
+  error: true
+editor: 
+  markdown: 
+    wrap: 87
+---
+
+```{r}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+```{r}
+library(RMediation)
+```

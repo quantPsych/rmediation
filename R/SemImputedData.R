@@ -112,6 +112,14 @@ setGeneric(
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
 #' @examples
 #' \dontrun{
+#' if (requireNamespace("lavaan", quietly = TRUE) && requireNamespace("mice", quietly = TRUE)) { # Check if the required packages are available
+#' library(lavaan)
+#' library(mice) }
+#' else {
+#' install.packages("lavaan")
+#' install.packages("mice")
+#' }
+#' library(RMediation)
 #' # Load Holzinger and Swineford (1939) dataset
 #' data("HolzingerSwineford1939", package = "lavaan")
 #' # Introduce missing data

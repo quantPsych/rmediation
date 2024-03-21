@@ -52,47 +52,6 @@ model_lav <- "
  visual  =~ x1 + x2 + x3
  textual =~ x4 + x5 + x6
  speed   =~ x7 + x8 + x9 "
-
-fitempty <- sem(model_lav, data = data_with_missing, do.fit = FALSE)
-
-fit <- sem(model_lav, data = data_with_missing)
-is_lav_syntax(model_lav)
-is_lav_syntax(fit)
-
-sem(fit, data = data_with_missing, do.fit = FALSE)
-
-sem(fit, data = data_with_missing)
-
-sem_data <-
-    set_sem(data = imputed_data, model_lav, conf.int = TRUE, conf.level = 0.95)
-
-names(imputed_data)
-
-imputed_data$m
-imputed_data$data |> head()
-mice::complete(imputed_data, 1) |> head()
-```
-
-```{r}
-fit_sem <- function(model, original_data) {
-    if (is_lav_syntax(model, quiet = TRUE)) {
-        lavaan::sem(model, data = original_data)
-    } else if (!is_fit(model) && inherits(model, "lavaan")) {
-        lavaan::sem(model, data = original_data, do.fit = TRUE) # fit the model
-    } else if (inherits(model, "mxModel") && !is_fit(model)) {
-        model_n <-
-            OpenMx::mxModel(model, mxData(original_data, type = "raw"))
-        OpenMx::mxRun(model_n)
-    } else {
-        model
-    }
-}
-```
-
-```{r}
-fit_sem(model_lav, data_with_missing)
-fit_sem(fit, data_with_missing)
-fit_sem(fitempty, data_with_missing)
 ```
 
 ```{r}
@@ -130,45 +89,6 @@ lav_opts$do.fit
 
 
 ```{r}
-extract_lav <- function(fit,
-                        conf.int = FALSE,
-                        conf.level = 0.95) {
-    # Extract the relevant information from a lavaan object
-    # This function should be customized based on the structure of your lavaan objects
-    # and the specific information you need to extract for pooling
-
-    nimp <- length(fit)
-    pooled_est <- fit |>
-        purrr::map_dfr(RMediation::tidy, conf.int = conf.int, .id = "imp") |>
-        dplyr::select(
-            term,
-            estimate,
-            std.error,
-            statistic,
-            p.value
-        ) |>
-        dplyr::group_by(term) |>
-        dplyr::summarise(
-            estimate = mean(estimate),
-            bet_var = var(estimate),
-            w_var = sum(std.error^2) / nimp
-        ) |>
-        dplyr::ungroup() |>
-        dplyr::mutate(tot_var = w_var + bet_var * (1 + 1 / nimp), std.error = sqrt(tot_var)) |>
-        dplyr::select(term, estimate, std.error, tot_var)
-    return(pooled_est)
-}
-```
-
-```{r}
-# Produce SemResults object
-res1 <- imputed_data |>
-    set_sem(model_lav) |>
-    run_sem()
-
-```
-
-```{r}
 extract_table <- function(fit, conf.int = FALSE, conf.level = 0.95) {
     # Extract the relevant information from a lavaan object
     # This function should be customized based on the structure of your lavaan objects
@@ -187,13 +107,12 @@ extract_table <- function(fit, conf.int = FALSE, conf.level = 0.95) {
 
 ```
 
-```{r}
-res1@estimate_df
-res1@coef_df |> dplyr::select(select = -.imp)
-```
-
 
 ```{r}
+# Produce SemResults object
+res1 <- imputed_data |>
+    set_sem(model_lav) |>
+    run_sem()
 
 res1@results |>
     purrr::map_df(tidy, .id = "imp") |>

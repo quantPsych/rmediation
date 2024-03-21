@@ -89,7 +89,7 @@ setValidity("SemImputedData", function(object) {
 #'
 #' @param object A `SemImputedData` object
 #' @param ... Additional arguments passed to either [lavaan::sem] or [OpenMx::MxModel].
-#' @return A `SemResults` object
+#' @return A [SemResults] object
 #' @usage run_sem(object, ...)
 #' @export
 #' @rdname run_sem

@@ -112,13 +112,6 @@ setGeneric(
 #' @author Davood Tofighi \email{dtofighi@@gmail.com}
 #' @examples
 #' \dontrun{
-#' if (requireNamespace("lavaan", quietly = TRUE) && requireNamespace("mice", quietly = TRUE)) { # Check if the required packages are available
-#' library(lavaan)
-#' library(mice) }
-#' else {
-#' install.packages("lavaan")
-#' install.packages("mice")
-#' }
 #' library(RMediation)
 #' # Load Holzinger and Swineford (1939) dataset
 #' data("HolzingerSwineford1939", package = "lavaan")
@@ -135,7 +128,7 @@ setGeneric(
 #'  "
 #' #' sem_data <- set_sem(imputed_data, model)
 #' ## Note that the model is specified as a string
-#' res <- run_sem(sem_data, model)
+#' res_results <- run_sem(sem_data, model)
 #' }
 setMethod("run_sem", "SemImputedData", function(object, ...) {
   if (!inherits(object@data, "mids")) {

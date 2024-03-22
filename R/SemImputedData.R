@@ -13,7 +13,7 @@
 #'   confidence intervals, which must be between 0 and 1. Defaults to 0.95.
 #' @slot original_data A derived (from mids object) slot to store the original data used to create the imputed datasets.
 #' @slot n_imputations A derived (from mids object) slot to store the number of imputations used to create the imputed datasets.
-#' @slot fit_model A slot to store the fitted SEM model object.
+#' @slot fit_model SEM fitted to the original data with list wise deletion of missing data.
 #' @exportClass SemImputedData
 #' @name SemImputedData
 #' @rdname SemImputedData
@@ -177,7 +177,7 @@ setMethod("run_sem", "SemImputedData", function(object, ...) {
 })
 
 ### ----------------------------------------------------------------------------
-### run_sem method
+### set_sem method
 ### ----------------------------------------------------------------------------
 
 #' Set up an SEM model with multiply imputed data.
@@ -259,11 +259,10 @@ setMethod("set_sem", "mids", function(data, model, conf_int = FALSE, conf_level 
       )
     }
   }
-
-  n_imputations <- data$m # number of imputations
+  n_imputations <- n_imp(data) # number of imputations, n_imp: internal function
   original_data <- mice::complete(data, action = 0L) # original data
   fit_model0 <- fit_model(model, original_data)
-  method <- model_type(fit_model0)
+  method <- model_type(fit_model0) # method for SEM analysis, model_type: internal function
   method <- ifelse(all(method %in% c("MxModel", "OpenMx")), "OpenMx", "lavaan")
 
   SemImputedData(

@@ -1,6 +1,6 @@
 #' Creates a data.frame for a log-likelihood object
 #'
-#' @param x x A log-likelihood object, typically returned by [logLik].
+#' @param x A log-likelihood object, typically returned by [logLik].
 #' @param ... Additional arguments (not used)
 #' @return A [data.frame] with columns:
 #'  \describe{

@@ -29,7 +29,7 @@ confidence intervals, which must be between 0 and 1. Defaults to 0.95.}
 
 \item{\code{n_imputations}}{A derived (from mids object) slot to store the number of imputations used to create the imputed datasets.}
 
-\item{\code{fit_model}}{A slot to store the fitted SEM model object.}
+\item{\code{fit_model}}{SEM fitted to the original data with list wise deletion of missing data.}
 }}
 
 \author{

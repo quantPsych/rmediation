@@ -28,3 +28,4 @@ show(mediationResult)
 \seealso{
 \link{show}, \linkS4class{MediationCI}
 }
+\keyword{internal}

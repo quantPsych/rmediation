@@ -23,3 +23,4 @@ summary(result)
 \seealso{
 \link{summary}, \linkS4class{MediationCI}
 }
+\keyword{internal}

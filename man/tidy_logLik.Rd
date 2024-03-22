@@ -7,7 +7,7 @@
 \method{tidy}{logLik}(x, ...)
 }
 \arguments{
-\item{x}{x A log-likelihood object, typically returned by \link{logLik}.}
+\item{x}{A log-likelihood object, typically returned by \link{logLik}.}
 
 \item{...}{Additional arguments (not used)}
 }
